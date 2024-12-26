@@ -1,34 +1,76 @@
-import React from "react";
-import { SafeAreaView, View, ScrollView, Image, Text, TouchableOpacity, TextInput } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import React, { useState } from "react";
+import { SafeAreaView, View, ScrollView, Image, Text, TouchableOpacity, TextInput, Keyboard, KeyboardAvoidingView, Platform } from "react-native";
+import Color from "../../infrastruture/theme/color";
 
 const LoginScreen = () => {
+
+    const navigation = useNavigation();
+
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+    React.useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardVisible(true);
+        });
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardVisible(false);
+        });
+
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
+
+    const handleContinue = () => {
+        navigation.navigate('OTP');
+    };
+
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-            <ScrollView style={{ flex: 1, backgroundColor: "#FFFFFF", marginTop: 44 }}>
-                <Image source={{ uri: "https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/34ac1b1f-2e3c-43ff-a8d8-ac0d411c68b0" }} resizeMode={"stretch"} style={{ height: 236, marginBottom: 99, marginHorizontal: 74 }} />
-                <View style={{ backgroundColor: "#FFFFFF", borderColor: "#CDCCCC", borderRadius: 8, borderWidth: 1, paddingTop: 29, paddingBottom: 66, marginHorizontal: 24 }}>
-                    <Text style={{ color: "#000000", fontSize: 15, marginBottom: 26, marginLeft: 25 }}>{"Let’s Get Started"}</Text>
-                    <View style={{ flexDirection: "row", alignItems: "center", backgroundColor: "#FFFFFF", borderColor: "#C6C6C6", borderRadius: 10, borderWidth: 1, paddingVertical: 5, paddingHorizontal: 10, marginBottom: 16, marginHorizontal: 16 }}>
-                        <Text style={{ color: "#7E7E7E", fontSize: 15, marginRight: 15 }}>{"+91"}</Text>
-                        <View style={{ width: 1, height: 36, backgroundColor: "#B0B0B0", marginRight: 19 }}></View>
-                        <TextInput
-                            style={{ color: "#000000", fontSize: 15, flex: 1, fontWeight: "bold" }}
-                            placeholder="Enter mobile number"
-                            placeholderTextColor="#7A7A7A"
-                            keyboardType="phone-pad"
-                            maxLength={10}
+        <SafeAreaView style={{ flex: 1 }}>
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+                <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+                    {!isKeyboardVisible && (
+                        <Image
+                            source={require("../../assets/icons/Home/laxmidevi_pic.png")}
+                            resizeMode="contain"
+                            style={{ alignSelf: 'center', height: 250, marginTop: 40 }}
                         />
+                    )}
+                    <View style={{ backgroundColor: "white", borderColor: Color.primary_grey, borderRadius: 8, borderWidth: 1, paddingTop: 25, paddingBottom: 25, margin: 20, marginTop: isKeyboardVisible ? 40 : 40, }}>
+                        <Text style={{ color: "black", fontSize: 15, fontFamily: 'Roboto-Medium', marginBottom: 25, marginLeft: 25, }}   >
+                            {"Let’s Get Started"}
+                        </Text>
+                        <View style={{ flexDirection: "row", alignItems: "center", backgroundColor: "white", borderColor: Color.primary_grey, borderRadius: 10, borderWidth: 1, paddingVertical: 5, paddingHorizontal: 10, marginBottom: 16, marginHorizontal: 16, }}>
+                            <Text style={{ color: "black", fontFamily: 'Roboto-Bold', fontSize: 15, marginRight: 15 }}>{"+91"}</Text>
+                            <View style={{ width: 1, height: 36, backgroundColor: Color.primary_grey, marginRight: 20 }}></View>
+                            <TextInput
+                                style={{ color: "black", fontSize: 16, flex: 1, fontFamily: 'Roboto-Bold' }}
+                                placeholder="Enter mobile number"
+                                placeholderTextColor={Color.primary_grey}
+                                keyboardType="phone-pad"
+                                maxLength={10}
+                            />
+                        </View>
+                        <Text style={{ flex: 1, textAlign: "center", color: "black", fontFamily: "Roboto-Medium", fontSize: 15, marginBottom: 15, }}>{"OR"}</Text>
+                        <View style={{ alignItems: "center", borderColor: Color.primary_grey, borderRadius: 12, borderWidth: 1, padding: 8, marginBottom: 25, alignSelf: "center", }}                       >
+                            <Image
+                                source={require("../../assets/icons/Home/google.png")}
+                                resizeMode="contain"
+                                style={{ height: 25, width: 25 }}
+                            />
+                        </View>
+                        <TouchableOpacity onPress={() => handleContinue()}
+                            style={{ alignSelf: 'center', alignItems: "center", backgroundColor: Color.orange, borderRadius: 8, paddingVertical: 10, paddingHorizontal: 60, marginBottom: 15, }} >
+                            <Text style={{ color: "white", fontFamily: "Roboto-Medium", fontSize: 18 }}>{"CONTINUE"}</Text>
+                        </TouchableOpacity>
+                        <Text style={{ color: "black", fontFamily: "Roboto-Light", fontSize: 10, textAlign: 'center' }}>
+                            {"by signing up you agree to Terms and privacy policy"}
+                        </Text>
                     </View>
-                    <Text style={{ color: "#000000", fontSize: 15, marginBottom: 15, marginLeft: 161 }}>{"OR"}</Text>
-                    <View style={{ alignItems: "center", borderColor: "#B4B3B3", borderRadius: 12, borderWidth: 1, padding: 8, marginBottom: 25, alignSelf: "center" }}>
-                        <Image source={{ uri: "https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/203ac17c-98e4-472b-8e68-3c7eccc69cb6" }} resizeMode={"contain"} style={{ height: 25, width: 25 }} />
-                    </View>
-                    <TouchableOpacity style={{ alignItems: "center", backgroundColor: "#FFB617", borderColor: "#F1F0F0", borderRadius: 12, borderWidth: 1, paddingVertical: 15, marginBottom: 15, marginHorizontal: 49 }} onPress={() => alert('Pressed!')}>
-                        <Text style={{ color: "#FFFFFF", fontSize: 20 }}>{"CONTINUE"}</Text>
-                    </TouchableOpacity>
-                    <Text style={{ color: "#000000", fontSize: 10, marginHorizontal: 67 }}>{"by signing up you agree to Terms and privacy policy"}</Text>
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     )
 }
