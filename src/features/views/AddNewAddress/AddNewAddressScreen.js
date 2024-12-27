@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, SafeAreaView, Image, Alert } from 'react-native';
-import Color from '../../infrastruture/theme/color';
+import Color from '../../../infrastruture/theme/color';
 import { useNavigation } from '@react-navigation/native';
 
 const AddNewAddressScreen = () => {
-        const navigation = useNavigation();
-    
+    const navigation = useNavigation();
+
 
     const [flatNumber, setFlatNumber] = useState('');
     const [area, setArea] = useState('');

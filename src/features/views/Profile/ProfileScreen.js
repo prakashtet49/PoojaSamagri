@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView, Dimensions, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
-import Color from '../../infrastruture/theme/color';
+import Color from '../../../infrastruture/theme/color';
 
 const ProfileScreen = () => {
 

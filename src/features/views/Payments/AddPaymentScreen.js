@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, Image, TouchableOpacity } from 'react-native';
-import Color from '../../infrastruture/theme/color';
+import Color from '../../../infrastruture/theme/color';
 
 const AddPaymentScreen = () => {
 

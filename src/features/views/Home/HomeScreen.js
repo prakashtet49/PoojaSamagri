@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList } from 'react-native';
 import { ScrollView, Image } from 'react-native';
-import Color from '../../infrastruture/theme/color';
+import Color from '../../../infrastruture/theme/color';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
@@ -74,6 +74,10 @@ const HomeScreen = () => {
         // You can navigate or do something else with the pressed item
     };
 
+    const handleSearch = () => {
+        navigation.navigate('SEARCH');
+    };
+
     return (
         <View style={{ flex: 1 }}>
 
@@ -108,17 +112,13 @@ const HomeScreen = () => {
                         </TouchableOpacity>
                     </View>
 
-                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#d3d3d3', borderRadius: 5, marginVertical: 20 }}>
+                    <TouchableOpacity onPress={() => handleSearch()} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#d3d3d3', borderRadius: 5, marginVertical: 20, paddingVertical:10 }}>
                         <Image
                             source={require('../../assets/icons/Home/Search.png')}
                             style={{ width: 20, height: 20, marginRight: 10, marginLeft: 10 }}
                         />
-                        <TextInput
-                            style={{ flex: 1, fontSize: 16, fontFamily: 'Roboto-Regular', color: 'black' }}
-                            placeholder="Search Items"
-                            placeholderTextColor="gray"
-                        />
-                    </View>
+                        <Text style={{ flex: 1, fontSize: 16, fontFamily: 'Roboto-Regular', color: 'black' }}>Search Items</Text>
+                    </TouchableOpacity>
 
                     <View style={{ backgroundColor: Color.primary_grey, justifyContent: 'center', alignItems: 'center', height: 200, borderRadius: 10, overflow: 'hidden' }}>
                         <FlatList
@@ -136,17 +136,7 @@ const HomeScreen = () => {
                         />
                         <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
                             {carouselData.map((_, index) => (
-                                <View
-                                    key={index}
-                                    style={{
-                                        width: 8,
-                                        height: 8,
-                                        borderRadius: 4,
-                                        marginHorizontal: 4,
-                                        marginBottom: 10,
-                                        backgroundColor: currentIndex === index ? '#000' : '#ccc',
-                                    }}
-                                />
+                                <View key={index} style={{ width: 8, height: 8, borderRadius: 4, marginHorizontal: 4, marginBottom: 10, backgroundColor: currentIndex === index ? '#000' : '#ccc', }} />
                             ))}
                         </View>
                     </View>
