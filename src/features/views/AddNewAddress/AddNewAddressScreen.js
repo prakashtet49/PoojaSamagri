@@ -31,7 +31,7 @@ const AddNewAddressScreen = () => {
                 <TouchableOpacity onPress={() => navigateBack()} style={{ flex: 1 }}>
                     <Text>
                         <Image
-                            source={require('../../assets/icons/Home/Left.png')}
+                            source={require('../../../assets/icons/Home/Left.png')}
                             style={{ width: 30, height: 30 }}
                         />
                     </Text>
@@ -119,7 +119,6 @@ const AddNewAddressScreen = () => {
                             {"Add Address"}
                         </Text>
                     </TouchableOpacity>
-
 
                 </View>
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ScrollView, TextInput, FlatList } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
 import { useNavigation } from '@react-navigation/native';
+import PoojaTypeListItem from '../PoojaType/components/PoojaTypeListItem';
 
 const SearchScreen = () => {
     const navigation = useNavigation();
@@ -31,40 +32,22 @@ const SearchScreen = () => {
     };
 
     const data = [
-        { id: '1', title: 'Item 1', image: require('../../assets/icons/Home/laxmidevi_pic.png'), price: "₹300", description: 'Description 1' },
-        { id: '2', title: 'Item 2', image: require('../../assets/icons/Home/laxmidevi_pic.png'), price: "₹300", description: 'Description 2' },
-        { id: '3', title: 'Item 3', image: require('../../assets/icons/Home/laxmidevi_pic.png'), price: "₹300", description: 'Description 3' },
+        { id: '1', title: 'Item 1', image: require('../../../assets/icons/Home/laxmidevi_pic.png'), price: "₹300", description: 'Description 1' },
+        { id: '2', title: 'Item 2', image: require('../../../assets/icons/Home/laxmidevi_pic.png'), price: "₹300", description: 'Description 2' },
+        { id: '3', title: 'Item 3', image: require('../../../assets/icons/Home/laxmidevi_pic.png'), price: "₹300", description: 'Description 3' },
     ];
 
     const renderItem = ({ item }) => {
         const count = cartCounts[item.id] || 0;
 
         return (
-            <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: Color.orange, padding: 10, borderRadius: 8, marginBottom: 10 }}>
-                <Image source={item.image} style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} />
-                <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium', color: 'white' }}>{item.title}</Text>
-                    <Text style={{ fontSize: 14, color: 'white', fontFamily: 'Roboto-Light' }}>{item.description}</Text>
-                </View>
-                <View style={{ flex: 1, marginStart: 15 }}>
-                    <Text style={{ fontSize: 16, fontFamily: 'Roboto-Bold', color: 'white' }}>{item.price}</Text>
-                </View>
-                {count === 0 ? (
-                    <TouchableOpacity onPress={() => handleAddToCart(item.id)} style={{ backgroundColor: 'white', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 5 }}>
-                        <Text style={{ fontSize: 15, color: "black", fontFamily: 'Roboto-Medium', }}>Add to Cart</Text>
-                    </TouchableOpacity>
-                ) : (
-                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: "white", paddingHorizontal: 8, borderRadius: 5 }}>
-                        <TouchableOpacity onPress={() => handleDecrease(item.id)} style={{ backgroundColor: 'white', padding: 5, borderRadius: 5, }}>
-                            <Text style={{ fontSize: 18, fontFamily: 'Roboto-Bold', color: 'orange', }}>-</Text>
-                        </TouchableOpacity>
-                        <Text style={{ fontSize: 16, fontFamily: 'Roboto-Bold', color: "black", marginStart: 20, marginEnd: 20 }}>{count}</Text>
-                        <TouchableOpacity onPress={() => handleIncrease(item.id)} style={{ backgroundColor: 'white', padding: 5, borderRadius: 5, }}>
-                            <Text style={{ fontSize: 16, fontFamily: 'Roboto-Bold', color: 'orange' }}>+</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
-            </View>
+            <PoojaTypeListItem
+                item={item}
+                count={count}
+                onAddToCart={handleAddToCart}
+                onIncrease={handleIncrease}
+                onDecrease={handleDecrease}
+            />
         );
     };
 
@@ -75,7 +58,7 @@ const SearchScreen = () => {
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15, height: 60, borderBottomWidth: 1, borderBottomColor: Color.primary_grey }}>
                 <TouchableOpacity onPress={() => navigateBack()} style={{ marginRight: 10 }}>
                     <Image
-                        source={require('../../assets/icons/Home/Left.png')}
+                        source={require('../../../assets/icons/Home/Left.png')}
                         style={{ width: 30, height: 30 }}
                     />
                 </TouchableOpacity>

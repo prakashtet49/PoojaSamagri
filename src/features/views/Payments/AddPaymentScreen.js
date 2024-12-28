@@ -19,7 +19,7 @@ const AddPaymentScreen = () => {
                 <TouchableOpacity onPress={() => navigateBack()} style={{ flex: 1 }}>
                     <Text>
                         <Image
-                            source={require('../../assets/icons/Home/Left.png')}
+                            source={require('../../../assets/icons/Home/Left.png')}
                             style={{ width: 30, height: 30 }}
                         />
                     </Text>
@@ -36,27 +36,27 @@ const AddPaymentScreen = () => {
 
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingStart: 10, paddingEnd: 10 }}
                         onPress={() => alert('clicked on Gpay')}>
-                        <Image source={require('../../assets/icons/payments/google-pay.png')} style={{ width: 40, height: 40 }} />
+                        <Image source={require('../../../assets/icons/payments/google-pay.png')} style={{ width: 40, height: 40 }} />
                         <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, fontFamily: 'Roboto-Medium', color: '#333', }}>Google Pay</Text>
-                        <Image source={require('../../assets/icons/Profile/Forward.png')} style={{ width: 30, height: 30 }} />
+                        <Image source={require('../../../assets/icons/Profile/Forward.png')} style={{ width: 30, height: 30 }} />
                     </TouchableOpacity>
 
                     <View style={{ height: 1, backgroundColor: Color.primary_grey, marginVertical: 10, }} />
 
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingStart: 10, paddingEnd: 10 }}
                         onPress={() => alert('clicked on Phonepe')}>
-                        <Image source={require('../../assets/icons/payments/phonepe.png')} style={{ width: 40, height: 40 }} />
+                        <Image source={require('../../../assets/icons/payments/phonepe.png')} style={{ width: 40, height: 40 }} />
                         <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, fontFamily: 'Roboto-Medium', color: '#333', }}>Phonepe</Text>
-                        <Image source={require('../../assets/icons/Profile/Forward.png')} style={{ width: 30, height: 30 }} />
+                        <Image source={require('../../../assets/icons/Profile/Forward.png')} style={{ width: 30, height: 30 }} />
                     </TouchableOpacity>
 
                     <View style={{ height: 1, backgroundColor: Color.primary_grey, marginVertical: 10, }} />
 
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingStart: 10, paddingEnd: 10 }}
                         onPress={() => alert('clicked on Paytm')}>
-                        <Image source={require('../../assets/icons/payments/paytm.png')} style={{ width: 40, height: 40 }} />
+                        <Image source={require('../../../assets/icons/payments/paytm.png')} style={{ width: 40, height: 40 }} />
                         <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, fontFamily: 'Roboto-Medium', color: '#333', }}>Paytm</Text>
-                        <Image source={require('../../assets/icons/Profile/Forward.png')} style={{ width: 30, height: 30 }} />
+                        <Image source={require('../../../assets/icons/Profile/Forward.png')} style={{ width: 30, height: 30 }} />
                     </TouchableOpacity>
 
                 </View>
@@ -66,9 +66,9 @@ const AddPaymentScreen = () => {
 
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingStart: 10, paddingEnd: 10 }}
                         onPress={() => alert('clicked on COD')}>
-                        <Image source={require('../../assets/icons/payments/money.png')} style={{ width: 40, height: 40 }} />
+                        <Image source={require('../../../assets/icons/payments/money.png')} style={{ width: 40, height: 40 }} />
                         <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, fontFamily: 'Roboto-Medium', color: '#333', }}>Cash on Delivery</Text>
-                        <Image source={require('../../assets/icons/Profile/Forward.png')} style={{ width: 30, height: 30 }} />
+                        <Image source={require('../../../assets/icons/Profile/Forward.png')} style={{ width: 30, height: 30 }} />
                     </TouchableOpacity>
 
                 </View>

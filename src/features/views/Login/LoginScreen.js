@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import { SafeAreaView, View, ScrollView, Image, Text, TouchableOpacity, TextInput, Keyboard, KeyboardAvoidingView, Platform } from "react-native";
-import Color from "../../infrastruture/theme/color";
+import Color from "../../../infrastruture/theme/color";
 
 const LoginScreen = () => {
 
@@ -33,7 +33,7 @@ const LoginScreen = () => {
                 <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
                     {!isKeyboardVisible && (
                         <Image
-                            source={require("../../assets/icons/Home/laxmidevi_pic.png")}
+                            source={require("../../../assets/icons/Home/laxmidevi_pic.png")}
                             resizeMode="contain"
                             style={{ alignSelf: 'center', height: 250, marginTop: 40 }}
                         />
@@ -56,7 +56,7 @@ const LoginScreen = () => {
                         <Text style={{ flex: 1, textAlign: "center", color: "black", fontFamily: "Roboto-Medium", fontSize: 15, marginBottom: 15, }}>{"OR"}</Text>
                         <View style={{ alignItems: "center", borderColor: Color.primary_grey, borderRadius: 12, borderWidth: 1, padding: 8, marginBottom: 25, alignSelf: "center", }}                       >
                             <Image
-                                source={require("../../assets/icons/Home/google.png")}
+                                source={require("../../../assets/icons/Home/google.png")}
                                 resizeMode="contain"
                                 style={{ height: 25, width: 25 }}
                             />

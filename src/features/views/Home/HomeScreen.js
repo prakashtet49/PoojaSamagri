@@ -28,24 +28,24 @@ const HomeScreen = () => {
     };
 
     const carouselData = [
-        { id: '1', title: 'Slide 1', image: require('../../assets/icons/Home/laxmidevi_pic.png') },
-        { id: '2', title: 'Slide 2', image: require('../../assets/icons/Home/laxmidevi_pic.png') },
-        { id: '3', title: 'Slide 3', image: require('../../assets/icons/Home/laxmidevi_pic.png') },
+        { id: '1', title: 'Slide 1', image: require('../../../assets/icons/Home/laxmidevi_pic.png') },
+        { id: '2', title: 'Slide 2', image: require('../../../assets/icons/Home/laxmidevi_pic.png') },
+        { id: '3', title: 'Slide 3', image: require('../../../assets/icons/Home/laxmidevi_pic.png') },
     ];
 
     const data = [
-        { image: require('../../assets/icons/Home/laxmidevi_pic.png'), text: 'Laxmi Pooja 1' },
-        { image: require('../../assets/icons/Home/laxmidevi_pic.png'), text: 'Laxmi Pooja 2' },
-        { image: require('../../assets/icons/Home/laxmidevi_pic.png'), text: 'Laxmi Pooja 3' },
-        { image: require('../../assets/icons/Home/laxmidevi_pic.png'), text: 'Laxmi Pooja 4' },
-        { image: require('../../assets/icons/Home/laxmidevi_pic.png'), text: 'Laxmi Pooja 5' },
-        { image: require('../../assets/icons/Home/laxmidevi_pic.png'), text: 'Laxmi Pooja 6' }
+        { image: require('../../../assets/icons/Home/laxmidevi_pic.png'), text: 'Laxmi Pooja 1' },
+        { image: require('../../../assets/icons/Home/laxmidevi_pic.png'), text: 'Laxmi Pooja 2' },
+        { image: require('../../../assets/icons/Home/laxmidevi_pic.png'), text: 'Laxmi Pooja 3' },
+        { image: require('../../../assets/icons/Home/laxmidevi_pic.png'), text: 'Laxmi Pooja 4' },
+        { image: require('../../../assets/icons/Home/laxmidevi_pic.png'), text: 'Laxmi Pooja 5' },
+        { image: require('../../../assets/icons/Home/laxmidevi_pic.png'), text: 'Laxmi Pooja 6' }
     ];
 
     const menuItems = [
-        { id: 'Profile', label: ' Profile  ', icon: require('../../assets/icons/Home/profile.png') },
-        { id: 'Home', label: ' Home  ', icon: require('../../assets/icons/Home/Home.png') },
-        { id: 'Orders', label: 'My Orders', icon: require('../../assets/icons/Home/transactions.png') },
+        { id: 'Profile', label: ' Profile  ', icon: require('../../../assets/icons/Home/profile.png') },
+        { id: 'Home', label: ' Home  ', icon: require('../../../assets/icons/Home/Home.png') },
+        { id: 'Orders', label: 'My Orders', icon: require('../../../assets/icons/Home/transactions.png') },
     ];
 
     const handleScroll = (event) => {
@@ -75,8 +75,21 @@ const HomeScreen = () => {
     };
 
     const handleSearch = () => {
-        navigation.navigate('SEARCH');
+        navigation.navigate("SEARCH");
     };
+
+    const handleAllPoojaTypes = () => {
+        navigation.navigate("POOJATYPE");
+    };
+
+    const handleAllPoojaCategories = () => {
+        navigation.navigate("POOJACATEGORY");
+    };
+
+    const handleAddtoCart = () => {
+        navigation.navigate("ADDTOCART");
+    };
+
 
     return (
         <View style={{ flex: 1 }}>
@@ -86,7 +99,7 @@ const HomeScreen = () => {
 
                     <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%' }}>
                         <Image
-                            source={require('../../assets/icons/Home/profile.png')}
+                            source={require('../../../assets/icons/Home/profile.png')}
                             style={{ width: 50, height: 50, borderRadius: 25 }}
                         />
                         <View style={{ marginLeft: 10, flex: 1, flexDirection: 'row', alignItems: 'center' }}>
@@ -97,27 +110,27 @@ const HomeScreen = () => {
                                 </View>
                                 <TouchableOpacity onPress={() => console.log('Image pressed')} style={{ marginLeft: 5 }}>
                                     <Image
-                                        source={require('../../assets/icons/Home/arrow.png')}
+                                        source={require('../../../assets/icons/Home/arrow.png')}
                                         style={{ width: 30, height: 30 }}
                                     />
                                 </TouchableOpacity>
                             </View>
                         </View>
 
-                        <TouchableOpacity onPress={() => console.log('New Image pressed')} style={{ marginLeft: 10 }}>
+                        <TouchableOpacity onPress={() => handleAddtoCart()} style={{ marginLeft: 10 }}>
                             <Image
-                                source={require('../../assets/icons/Home/cart.png')}
+                                source={require('../../../assets/icons/Home/cart.png')}
                                 style={{ width: 30, height: 30 }}
                             />
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity onPress={() => handleSearch()} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#d3d3d3', borderRadius: 5, marginVertical: 20, paddingVertical:10 }}>
+                    <TouchableOpacity onPress={() => handleSearch()} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: Color.primary_grey, borderRadius: 20, marginVertical: 15, paddingVertical: 8, width: '40%' }}>
                         <Image
-                            source={require('../../assets/icons/Home/Search.png')}
-                            style={{ width: 20, height: 20, marginRight: 10, marginLeft: 10 }}
+                            source={require('../../../assets/icons/Home/Search.png')}
+                            style={{ width: 15, height: 15, marginLeft: 10 }}
                         />
-                        <Text style={{ flex: 1, fontSize: 16, fontFamily: 'Roboto-Regular', color: 'black' }}>Search Items</Text>
+                        <Text style={{ flex: 1, fontSize: 16, textAlign: 'center', fontFamily: 'Roboto-Regular', color: 'black' }}>Search Items</Text>
                     </TouchableOpacity>
 
                     <View style={{ backgroundColor: Color.primary_grey, justifyContent: 'center', alignItems: 'center', height: 200, borderRadius: 10, overflow: 'hidden' }}>
@@ -142,10 +155,10 @@ const HomeScreen = () => {
                     </View>
 
                     <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 20, marginHorizontal: 5, }}>
-                        <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, marginRight: 4, flex: 1, }}> Explore Pooja Types  </Text>
-                        <TouchableOpacity style={{ flexDirection: "row", alignItems: "center", }}>
+                        <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, marginRight: 4, flex: 1, }}>Explore Pooja Types</Text>
+                        <TouchableOpacity onPress={() => handleAllPoojaTypes()} style={{ flexDirection: "row", alignItems: "center", }}>
                             <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, }}>See All</Text>
-                            <Image source={require('../../assets/icons/Home/arrow.png')} resizeMode='contain' style={{ width: 25, height: 25, transform: [{ rotate: '270deg' }] }} />
+                            <Image source={require('../../../assets/icons/Home/arrow.png')} resizeMode='contain' style={{ width: 25, height: 25, transform: [{ rotate: '270deg' }] }} />
                         </TouchableOpacity>
                     </View>
 
@@ -175,9 +188,9 @@ const HomeScreen = () => {
 
                     <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 20, marginHorizontal: 5, }}>
                         <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, marginRight: 4, flex: 1, }}> Explore Pooja Categories  </Text>
-                        <TouchableOpacity style={{ flexDirection: "row", alignItems: "center", }}>
+                        <TouchableOpacity onPress={() => handleAllPoojaCategories()} style={{ flexDirection: "row", alignItems: "center", }}>
                             <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, }}>See All</Text>
-                            <Image source={require('../../assets/icons/Home/arrow.png')} resizeMode='contain' style={{ width: 25, height: 25, transform: [{ rotate: '270deg' }] }} />
+                            <Image source={require('../../../assets/icons/Home/arrow.png')} resizeMode='contain' style={{ width: 25, height: 25, transform: [{ rotate: '270deg' }] }} />
                         </TouchableOpacity>
                     </View>
 

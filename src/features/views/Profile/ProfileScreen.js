@@ -37,19 +37,19 @@ const ProfileScreen = () => {
                     <TouchableOpacity onPress={() => navigatetoHome()} style={{ flex: 1 }}>
                         <Text>
                             <Image
-                                source={require('../../assets/icons/Home/Left.png')}
+                                source={require('../../../assets/icons/Home/Left.png')}
                                 style={{ width: 30, height: 30 }}
                             />
                         </Text>
                     </TouchableOpacity>
-                    <Text style={{ fontSize: 18, fontWeight: 'bold', textAlign: 'center', }}>Profile</Text>
+                    <Text style={{ fontSize: 18, fontFamily:"Roboto-Bold", textAlign: 'center', }}>Profile</Text>
                     <View style={{ flex: 1 }} />
                 </View>
 
                 <View style={{ marginTop: 20, alignItems: 'center' }}>
                     <View style={{ width: screenWidth * 0.9, backgroundColor: Color.primary_orange, borderRadius: 10, padding: 20, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5, }}>
                         <Image
-                            source={require('../../assets/icons/Home/profile.png')} resizeMode='contain'
+                            source={require('../../../assets/icons/Home/profile.png')} resizeMode='contain'
                             style={{ width: 100, height: 100, borderRadius: 30, marginRight: 15, }} />
                         <View style={{ flexDirection: 'column', marginHorizontal: 10 }}>
                             <Text style={{ fontSize: 24, fontFamily: 'Roboto-Bold' }}> Upendar</Text>
@@ -71,13 +71,13 @@ const ProfileScreen = () => {
                     >
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Image
-                                source={require('../../assets/icons/Profile/Location.png')}
+                                source={require('../../../assets/icons/Profile/Location.png')}
                                 style={{ width: 35, height: 35, marginRight: 15 }}
                             />
                             <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium' }}>Your Address</Text>
                         </View>
                         <Image
-                            source={require('../../assets/icons/Profile/Forward.png')}
+                            source={require('../../../assets/icons/Profile/Forward.png')}
                             style={{ width: 20, height: 20 }}
                         />
                     </TouchableOpacity>
@@ -90,13 +90,13 @@ const ProfileScreen = () => {
                     >
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Image
-                                source={require('../../assets/icons/Profile/Transaction.png')}
+                                source={require('../../../assets/icons/Profile/Transaction.png')}
                                 style={{ width: 35, height: 35, marginRight: 15 }}
                             />
                             <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium' }}>Your Transactions</Text>
                         </View>
                         <Image
-                            source={require('../../assets/icons/Profile/Forward.png')}
+                            source={require('../../../assets/icons/Profile/Forward.png')}
                             style={{ width: 20, height: 20 }}
                         />
                     </TouchableOpacity>
@@ -116,13 +116,13 @@ const ProfileScreen = () => {
                     >
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Image
-                                source={require('../../assets/icons/Profile/terms.png')}
+                                source={require('../../../assets/icons/Profile/terms.png')}
                                 style={{ width: 35, height: 35, marginRight: 15 }}
                             />
                             <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium' }}>Terms and Conditions</Text>
                         </View>
                         <Image
-                            source={require('../../assets/icons/Profile/Forward.png')}
+                            source={require('../../../assets/icons/Profile/Forward.png')}
                             style={{ width: 20, height: 20 }}
                         />
                     </TouchableOpacity>
@@ -135,13 +135,13 @@ const ProfileScreen = () => {
                     >
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Image
-                                source={require('../../assets/icons/Profile/contact.png')}
+                                source={require('../../../assets/icons/Profile/contact.png')}
                                 style={{ width: 35, height: 35, marginRight: 15 }}
                             />
                             <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium' }}>Contact Us</Text>
                         </View>
                         <Image
-                            source={require('../../assets/icons/Profile/Forward.png')}
+                            source={require('../../../assets/icons/Profile/Forward.png')}
                             style={{ width: 20, height: 20 }}
                         />
                     </TouchableOpacity>
@@ -170,14 +170,14 @@ const ProfileScreen = () => {
 
                 <View style={{ backgroundColor: 'white', borderTopLeftRadius: 15, borderTopRightRadius: 15, padding: 20, position: 'absolute', bottom: 0, width: '100%', shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.2, shadowRadius: 5, elevation: 5, }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', elevation: 5, justifyContent: 'space-between' }}>
-                        <Image resizeMode='contain' source={require('../../assets/icons/Home/Left.png')} style={{ width: 40, height: 40 }} />
+                        <Image resizeMode='contain' source={require('../../../assets/icons/Home/Left.png')} style={{ width: 40, height: 40 }} />
                         <Text style={{ position: 'absolute', left: '50%', transform: [{ translateX: '-50 %' }], fontSize: 16, fontFamily: 'Roboto-Medium', textAlign: 'center', color: "black" }}>Select an Address</Text>
                     </View>
 
                     <View style={{ height: 1, backgroundColor: Color.primary_grey, marginVertical: 10 }} />
 
                     <TouchableOpacity onPress={() => handleYourAddress()} style={{ alignSelf: 'center', flexDirection: 'row', alignItems: 'center', }}>
-                        <Image source={require('../../assets/icons/Profile/add.png')} style={{ width: 25, height: 25, marginRight: 20 }} />
+                        <Image source={require('../../../assets/icons/Profile/add.png')} style={{ width: 25, height: 25, marginRight: 20 }} />
                         <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium', color: "black" }}>Add new Address</Text>
                     </TouchableOpacity>
 
@@ -188,21 +188,21 @@ const ProfileScreen = () => {
                     <View style={{ height: 1, backgroundColor: Color.primary_grey, marginVertical: 10 }} />
 
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', }} >
-                        <Image resizeMode='contain' source={require('../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
+                        <Image resizeMode='contain' source={require('../../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
                         <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium', color: "black" }}> Hyderabad, Telangana</Text>
                     </TouchableOpacity>
 
                     <View style={{ height: 1, backgroundColor: Color.primary_grey, marginVertical: 10 }} />
 
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', }} >
-                        <Image resizeMode='contain' source={require('../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
+                        <Image resizeMode='contain' source={require('../../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
                         <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium', color: "black" }}> Hyderabad, Telangana</Text>
                     </TouchableOpacity>
 
                     <View style={{ height: 1, backgroundColor: Color.primary_grey, marginVertical: 10 }} />
 
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', }} >
-                        <Image resizeMode='contain' source={require('../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
+                        <Image resizeMode='contain' source={require('../../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
                         <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium', color: "black" }}> Hyderabad, Telangana</Text>
                     </TouchableOpacity>
 

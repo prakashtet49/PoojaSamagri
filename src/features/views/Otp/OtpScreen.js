@@ -92,7 +92,7 @@ const OtpScreen = () => {
                             {"Retry"}
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity  onPress={() => handleVerify()} style={{ alignSelf: 'center', alignItems: "center", backgroundColor: "gray", borderRadius: 12, padding: 15, }}>
+                    <TouchableOpacity onPress={() => handleVerify()} style={{ alignSelf: 'center', alignItems: "center", backgroundColor: "gray", borderRadius: 12, padding: 15, }}>
                         <Text style={{ color: "white", fontFamily: 'Roboto-Bold', fontSize: 16, marginStart: 40, marginEnd: 40 }}>
                             {"Verify and Proceed"}
                         </Text>
