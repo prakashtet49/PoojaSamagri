@@ -33,7 +33,7 @@ const ProfileScreen = () => {
 
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
 
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15, height: 60, backgroundColor: '#f5f5f5', borderBottomWidth: 1, borderBottomColor: '#ddd', }}>
+                {/* <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15, height: 60, backgroundColor: '#f5f5f5', borderBottomWidth: 1, borderBottomColor: '#ddd', }}>
                     <TouchableOpacity onPress={() => navigatetoHome()} style={{ flex: 1 }}>
                         <Text>
                             <Image
@@ -44,16 +44,24 @@ const ProfileScreen = () => {
                     </TouchableOpacity>
                     <Text style={{ fontSize: 18, fontFamily:"Roboto-Bold", textAlign: 'center', }}>Profile</Text>
                     <View style={{ flex: 1 }} />
-                </View>
+                </View> */}
 
-                <View style={{ marginTop: 20, alignItems: 'center' }}>
-                    <View style={{ width: screenWidth * 0.9, backgroundColor: Color.primary_orange, borderRadius: 10, padding: 20, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5, }}>
+                <View style={{ alignItems: 'center', borderBottomRightRadius: 35, borderBottomLeftRadius: 35, backgroundColor: "#2C5364", shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5, }}>
+                    <TouchableOpacity onPress={() => navigatetoHome()} style={{ flex: 1, alignSelf: 'flex-start', padding: 10, marginHorizontal: 20 }} >
+                        <Text>
+                            <Image
+                                source={require('../../../assets/icons/Home/Left.png')}
+                                style={{ width: 30, height: 30, tintColor: 'white' }}
+                            />
+                        </Text>
+                    </TouchableOpacity>
+                    <View style={{ width: screenWidth * 0.9, borderRadius: 10, padding: 20, flexDirection: 'row', alignItems: 'center', }}>
                         <Image
                             source={require('../../../assets/icons/Home/profile.png')} resizeMode='contain'
-                            style={{ width: 100, height: 100, borderRadius: 30, marginRight: 15, }} />
+                            style={{ width: 80, height: 80, borderRadius: 30, marginRight: 15, tintColor: "white" }} />
                         <View style={{ flexDirection: 'column', marginHorizontal: 10 }}>
-                            <Text style={{ fontSize: 24, fontFamily: 'Roboto-Bold' }}> Upendar</Text>
-                            <Text style={{ fontSize: 20, fontFamily: 'Roboto-Medium' }}>45234 567 890</Text>
+                            <Text style={{ fontSize: 24, color: "white", fontFamily: 'Roboto-Bold' }}> Upendar</Text>
+                            <Text style={{ fontSize: 20, color: "white", fontFamily: 'Roboto-Medium' }}>45234 567 890</Text>
                         </View>
                     </View>
                 </View>
@@ -210,7 +218,7 @@ const ProfileScreen = () => {
 
                 </View>
             </Modal>
-            
+
         </SafeAreaView>
     );
 };
