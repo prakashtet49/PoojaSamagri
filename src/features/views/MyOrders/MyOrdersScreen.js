@@ -10,7 +10,7 @@ const MyOrdersScreen = () => {
 
 
     const navigateBack = () => {
-        navigation.goBack();
+        navigation.navigate("HOME");
     };
 
     const data = [

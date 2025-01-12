@@ -20,7 +20,16 @@ const AddNewAddressScreen = () => {
     };
 
     const handleAddAddress = () => {
-        Alert.alert('Address Added', 'Your address has been added successfully!');
+        Alert.alert(
+            'Address Added', 
+            'Your address has been added successfully!',
+            [
+                {
+                    text: 'OK', 
+                    onPress: () => navigation.navigate("HOME")
+                }
+            ]
+        );
     };
 
 

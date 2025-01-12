@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, FlatList, TouchableOpacity, Image, Dimensions } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
@@ -7,24 +7,24 @@ import PoojaTypeListItem from './components/PoojaTypeListItem';
 const PoojaTypeScreen = () => {
     const navigation = useNavigation();
     const { width } = Dimensions.get('window');
+    const route = useRoute();
+
+    const poojaCategoryData = route.params?.poojaCategoryData || [];
+    const screenName = route.params?.screenName || "Select Items";
 
 
     const navigateBack = () => {
         navigation.goBack();
     };
 
+    const handleSearch = () => {
+        navigation.navigate("SEARCH");
+    };
+
     const numColumns = 2;
 
     const itemWidth = width / numColumns - 60;
     const itemWidth2 = width / numColumns - 120;
-
-    const horizontalData = [
-        { id: '1', title: 'laxmi pooja', image: require('../../../assets/icons/Home/laxmidevi_pic.png') },
-        { id: '2', title: 'mahalaxmi pooja', image: require('../../../assets/icons/Home/laxmidevi_pic.png') },
-        { id: '3', title: 'mahashiva pooja', image: require('../../../assets/icons/Home/laxmidevi_pic.png') },
-        { id: '4', title: 'HItem 4', image: require('../../../assets/icons/Home/laxmidevi_pic.png') },
-        { id: '5', title: 'HItem 5', image: require('../../../assets/icons/Home/laxmidevi_pic.png') },
-    ];
 
     const data = [
         { id: '1', title: 'mahalaxmi idol pic', image: require('../../../assets/icons/Home/laxmidevi_pic.png'), price: "₹200", description: "Quantity: 1 Piece" },
@@ -35,7 +35,7 @@ const PoojaTypeScreen = () => {
         { id: '6', title: 'Item 6', image: require('../../../assets/icons/Home/laxmidevi_pic.png'), price: "₹200", description: "Quantity: 1 Piece" },
     ];
 
-    const [selectedId, setSelectedId] = useState(horizontalData[0].id);
+    const [selectedId, setSelectedId] = useState(poojaCategoryData[0].id);
     const [cartCounts, setCartCounts] = useState({});
 
     const handleAddToCart = (id) => {
@@ -64,8 +64,8 @@ const PoojaTypeScreen = () => {
                 <View style={{ width: itemWidth2, height: itemWidth2, backgroundColor: isSelected ? Color.primary_blue : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 8, borderWidth: isSelected ? 2 : 0, borderColor: isSelected ? 'white' : 'transparent', }}>
                     <Image source={item.image} style={{ width: '80%', height: '80%', resizeMode: 'contain' }} />
                 </View>
-                <Text style={{ marginTop: 5, fontSize: 12, fontFamily: "Roboto-Medium", color: 'black', textAlign: 'center', flexWrap: 'wrap', width: itemWidth2 }} numberOfLines={2}>
-                    {item.title}
+                <Text style={{ marginTop: 5, fontSize: 10, fontFamily: "Roboto-Medium", color: 'black', textAlign: 'center', flexWrap: 'wrap', width: itemWidth2 }} numberOfLines={2}>
+                    {item.text}
                 </Text>
                 {isSelected && (
                     <View style={{ marginTop: 5, width: itemWidth / 2, height: 4, backgroundColor: "darkblue", borderTopLeftRadius: 18, borderTopRightRadius: 18, padding: 3 }} />
@@ -97,7 +97,7 @@ const PoojaTypeScreen = () => {
                     <Image resizeMode='contain' source={require('../../../assets/icons/Home/Left.png')} style={{ width: 30, height: 30 }} />
                 </TouchableOpacity>
 
-                <Text style={{ fontSize: 18, fontFamily: 'Roboto-Bold', textAlign: 'left', }}>Select Pooja Type</Text>
+                <Text style={{ fontSize: 18, fontFamily: 'Roboto-Bold', textAlign: 'left', }}>{screenName}</Text>
                 <View style={{ flex: 1 }} />
 
                 <TouchableOpacity onPress={() => handleSearch()} style={{ borderRadius: 20, padding: 5 }}>
@@ -107,7 +107,7 @@ const PoojaTypeScreen = () => {
 
             <View>
                 <FlatList
-                    data={horizontalData}
+                    data={poojaCategoryData}
                     renderItem={renderHorizontalItem}
                     keyExtractor={(item) => item.id}
                     horizontal

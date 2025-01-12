@@ -4,6 +4,7 @@ import { SafeAreaView, View, Text, FlatList, TouchableOpacity, Image, Dimensions
 import Color from '../../../infrastruture/theme/color';
 import PoojaTypeListItem from '../PoojaType/components/PoojaTypeListItem';
 import AddtoCartItem from './components/AddtoCartItem';
+import AddAddressSheet from '../Profile/components/AddAddressSheet';
 
 const AddtoCartScreen = () => {
     const navigation = useNavigation();
@@ -13,6 +14,12 @@ const AddtoCartScreen = () => {
     const navigateBack = () => {
         navigation.goBack();
     };
+
+    const [addressBtmSheetVisible, setaddressBtmSheetVisible] = useState(false);
+
+    const openBottomSheet = () => setaddressBtmSheetVisible(true);
+    const closeBottomSheet = () => setaddressBtmSheetVisible(false);
+
 
     const numColumns = 2;
 
@@ -87,35 +94,40 @@ const AddtoCartScreen = () => {
             </View>
 
             <View style={{ backgroundColor: '#EFEEEE', elevation: 5, borderTopLeftRadius: 8, borderTopRightRadius: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 10, borderTopLeftRadius: 8, borderTopRightRadius: 8, }}>
+                <TouchableOpacity onPress={() => openBottomSheet()} style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 10, borderTopLeftRadius: 8, borderTopRightRadius: 8, }}>
                     <Image resizeMode="contain" source={require('../../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
                     <View>
                         <Text style={{ fontSize: 18, fontFamily: 'Roboto-Medium', color: 'black' }}>Delivering to</Text>
                         <Text style={{ fontSize: 14, fontFamily: 'Roboto-Regular', color: 'black' }}>Hyderabad, Telangana</Text>
                     </View>
-                    <TouchableOpacity onPress={() => { }} style={{ marginLeft: 'auto' }}>
+                    <View onPress={() => { }} style={{ marginLeft: 'auto' }}>
                         <Image resizeMode="contain" source={require('../../../assets/icons/Profile/Forward.png')} style={{ width: 30, height: 30 }} />
-                    </TouchableOpacity>
-                </View>
+                    </View>
+                </TouchableOpacity>
 
                 <View style={{ borderBottomWidth: 1, borderStyle: 'dotted', borderColor: 'gray' }} />
 
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 10 }}>
-                    <TouchableOpacity style={{ width: "40%", justifyContent: "flex-start" }} onPress={() => handlePayUsing()}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 10 }}>
+                    {/* <TouchableOpacity style={{ width: "40%", justifyContent: "flex-start" }} onPress={() => handlePayUsing()}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                             <Text style={{ fontSize: 14, textAlign: "center", fontFamily: 'Roboto-Light', color: 'black' }}>Pay using</Text>
                             <Image resizeMode="contain" source={require('../../../assets/icons/Home/arrow.png')} style={{ width: 20, height: 20, marginRight: 10 }} />
                         </View>
                         <Text style={{ fontSize: 14, fontFamily: 'Roboto-Medium', color: 'black' }}>Phonepe</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{ width: '60%', backgroundColor: 'orange', justifyContent: "space-between", padding: 5, borderRadius: 5, flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={{ alignSelf: "flex-start", alignItems: 'center', marginRight: 20 }}>
-                            <Text style={{ fontSize: 16, fontFamily: 'Roboto-Bold', color: 'white' }}>₹500</Text>
-                            <Text style={{ fontSize: 16, fonFamily: 'Roboto-Bold', color: 'white' }}>Total</Text>
+                    </TouchableOpacity> */}
+                    <TouchableOpacity onPress={() => handlePayUsing()} style={{ flex: 1, backgroundColor: 'orange', justifyContent: "space-between", alignContent: 'center', padding: 5, borderRadius: 5, flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={{ alignSelf: "flex-start", alignItems: 'center', marginRight: 20, marginStart: 15 }}>
+                            <Text style={{ fontSize: 20, fontFamily: 'Roboto-Bold', color: 'white' }}>₹500</Text>
+                            <Text style={{ fontSize: 12, fonFamily: 'Roboto-Medium', color: 'white', marginRight: 10 }}>Total</Text>
                         </View>
-                        <Text style={{ fontSize: 16, fontFamily: 'Roboto-Bold', color: 'white', marginRight: 10 }}>Place Order</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', }}>
+                            <Text style={{ fontSize: 20, fontFamily: 'Roboto-Bold', color: 'white', }}>Place Order</Text>
+                            <Image resizeMode="contain" source={require('../../../assets/icons/Profile/Forward.png')} style={{ width: 25, height: 25, tintColor: 'white' }} />
+                        </View>
                     </TouchableOpacity>
                 </View>
+
+                <AddAddressSheet visible={addressBtmSheetVisible} close={closeBottomSheet} />
 
             </View>
         </SafeAreaView>

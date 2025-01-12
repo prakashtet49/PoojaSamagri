@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView, Dimensions, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
+import AddAddressSheet from './components/AddAddressSheet';
 
 const ProfileScreen = () => {
 
@@ -25,7 +26,6 @@ const ProfileScreen = () => {
 
     const openBottomSheet = () => setaddressBtmSheetVisible(true);
     const closeBottomSheet = () => setaddressBtmSheetVisible(false);
-
 
 
     return (
@@ -166,7 +166,12 @@ const ProfileScreen = () => {
 
             </ScrollView>
 
-            <Modal
+            <AddAddressSheet
+                visible={addressBtmSheetVisible}
+                close={closeBottomSheet}
+            />
+
+            {/* <Modal
                 visible={addressBtmSheetVisible}
                 transparent={true}
                 animationType="slide"
@@ -217,7 +222,7 @@ const ProfileScreen = () => {
                     <View style={{ height: 1, backgroundColor: Color.primary_grey, marginVertical: 10 }} />
 
                 </View>
-            </Modal>
+            </Modal> */}
 
         </SafeAreaView>
     );

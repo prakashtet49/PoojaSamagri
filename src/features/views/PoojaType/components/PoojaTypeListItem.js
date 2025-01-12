@@ -28,7 +28,9 @@ const PoojaTypeListItem = ({ item, count, onAddToCart, onIncrease, onDecrease })
                     </TouchableOpacity>
                 </View>
             )}
-            <Image resizeMode="contain" source={require('../../../../assets/icons/Home/check.png')} style={{ position: 'absolute', top: -2, right: 0, width: 15, height: 15 }} />
+            {count > 0 &&
+                <Image resizeMode="contain" source={require('../../../../assets/icons/Home/check.png')} style={{ position: 'absolute', top: -2, right: 0, width: 15, height: 15 }} />
+            }
         </View>
     );
 };

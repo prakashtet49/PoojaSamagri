@@ -5,6 +5,7 @@ import Color from '../../../infrastruture/theme/color';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import axiosInstance from '../../../api/ApiManager';
+import AddAddressSheet from '../Profile/components/AddAddressSheet';
 
 const HomeScreen = () => {
     const { width } = Dimensions.get('window');
@@ -18,14 +19,17 @@ const HomeScreen = () => {
     const [scrollAnim] = useState(new Animated.Value(0));
     const textOptions = ['Search for Pooja samagri', 'Find Hawan samagri', 'Look for Items', 'Explore Products'];
     const [selectedId, setSelectedId] = useState(horizontalData[0]);
-    const [poojaCategoryData,setPoojaCategoryData] = useState([]);
-    const [productCategoryData,setProductCategoryData] = useState([]);
+    const [poojaCategoryData, setPoojaCategoryData] = useState([]);
+    const [productCategoryData, setProductCategoryData] = useState([]);
+    const [addressBtmSheetVisible, setaddressBtmSheetVisible] = useState(false);
 
-    
 
     useEffect(() => {
         setSelectedMenu('Home')
     }, [selectedMenu]);
+
+    const openBottomSheet = () => setaddressBtmSheetVisible(true);
+    const closeBottomSheet = () => setaddressBtmSheetVisible(false);
 
 
     const handleMenuPress = (id) => {
@@ -105,18 +109,18 @@ const HomeScreen = () => {
     };
 
     const handleAllPoojaTypes = () => {
-        navigation.navigate("POOJATYPE");
+        navigation.navigate("POOJATYPE", { poojaCategoryData: poojaCategoryData, screenName: "Select Pooja Type" });
     };
 
     const handleAllPoojaCategories = () => {
-        navigation.navigate("POOJATYPE");
+        navigation.navigate("POOJACATEGORY", { productCategoryData: productCategoryData, screenName: "Select Pooja Category" });
     };
 
     const handleAddtoCart = () => {
         navigation.navigate("ADDTOCART");
     };
 
-   
+
     useEffect(() => {
         const intervalId = setInterval(() => {
             setTextIndex((prevIndex) => (prevIndex + 1) % textOptions.length);
@@ -141,6 +145,7 @@ const HomeScreen = () => {
         const fetchData = async () => {
             try {
                 const response = await axiosInstance.get('hawan_category.json');
+                console.log('hawan_categoryResponse:', response.data);
                 const transformedData = response.data.map((item, index) => ({
                     id: index.toString(),
                     title: item,
@@ -151,7 +156,7 @@ const HomeScreen = () => {
                 console.log('Error fetching data:', error.message);
             }
         };
-    
+
         fetchData();
     }, []);
 
@@ -169,7 +174,7 @@ const HomeScreen = () => {
                 console.log('Error fetching data:', error.message);
             }
         };
-    
+
         fetchData();
     }, []);
 
@@ -177,7 +182,8 @@ const HomeScreen = () => {
         const fetchData = async () => {
             try {
                 const response = await axiosInstance.get('prod_category.json');
-             
+                // console.log(' prod_category Response:', response.data);
+
                 const transformedData = Object.keys(response.data).map((key, index) => ({
                     id: index.toString(),
                     text: key,
@@ -188,10 +194,10 @@ const HomeScreen = () => {
                 console.log('Error fetching data:', error.message);
             }
         };
-    
+
         fetchData();
     }, []);
-    
+
 
     const numColumns = 2;
 
@@ -239,7 +245,7 @@ const HomeScreen = () => {
                                             <Text style={{ fontSize: 20, fontFamily: 'Roboto-Medium', color: "white" }}>Delivering to</Text>
                                             <Text style={{ fontSize: 12, fontFamily: 'Roboto-Regular', color: "white" }}>123 Main St, City, Country</Text>
                                         </View>
-                                        <TouchableOpacity onPress={() => console.log('Image pressed')} style={{ marginLeft: 5 }}>
+                                        <TouchableOpacity onPress={() => openBottomSheet()} style={{ marginLeft: 5 }}>
                                             <Image
                                                 source={require('../../../assets/icons/Home/arrow.png')}
                                                 style={{ width: 30, height: 30, tintColor: "white" }}
@@ -388,6 +394,8 @@ const HomeScreen = () => {
                     </TouchableOpacity>
                 ))}
             </View>
+
+            <AddAddressSheet visible={addressBtmSheetVisible} close={closeBottomSheet} />
 
         </SafeAreaView>
     );
