@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1051653120715",
+    "firebase_url": "https://poojasamagri-ee0ae-default-rtdb.firebaseio.com",
+    "project_id": "poojasamagri-ee0ae",
+    "storage_bucket": "poojasamagri-ee0ae.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1051653120715:android:aacf64b1229cde4460714e",
+        "android_client_info": {
+          "package_name": "com.poojasamagri"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0HZCmTd8lzGXc0tJTP-8irZMtlXSHsHY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

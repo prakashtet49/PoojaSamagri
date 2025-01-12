@@ -4,13 +4,24 @@ import { ScrollView, Image } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import axiosInstance from '../../../api/ApiManager';
 
 const HomeScreen = () => {
+    const { width } = Dimensions.get('window');
+    const navigation = useNavigation();
+    const flatListRef = useRef(null);
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedMenu, setSelectedMenu] = useState('Home');
-    const { width } = Dimensions.get('window');
-    const navigation = useNavigation();
+    const [horizontalData, setHorizontalData] = useState([]);
+    const [textIndex, setTextIndex] = useState(0);
+    const [scrollAnim] = useState(new Animated.Value(0));
+    const textOptions = ['Search for Pooja samagri', 'Find Hawan samagri', 'Look for Items', 'Explore Products'];
+    const [selectedId, setSelectedId] = useState(horizontalData[0]);
+    const [poojaCategoryData,setPoojaCategoryData] = useState([]);
+    const [productCategoryData,setProductCategoryData] = useState([]);
+
+    
 
     useEffect(() => {
         setSelectedMenu('Home')
@@ -41,8 +52,6 @@ const HomeScreen = () => {
         { id: 'Home', label: ' Home  ', icon: require('../../../assets/icons/Home/Home.png') },
         { id: 'Orders', label: 'My Orders', icon: require('../../../assets/icons/Home/transactions.png') },
     ];
-
-    const flatListRef = useRef(null);
 
     const images = [
         require('../../../assets/icons/Home/img2.jpg'),
@@ -107,10 +116,7 @@ const HomeScreen = () => {
         navigation.navigate("ADDTOCART");
     };
 
-    const [textIndex, setTextIndex] = useState(0);
-    const [scrollAnim] = useState(new Animated.Value(0));
-    const textOptions = ['Search for Pooja samagri', 'Find Hawan samagri', 'Look for Items', 'Explore Products'];
-
+   
     useEffect(() => {
         const intervalId = setInterval(() => {
             setTextIndex((prevIndex) => (prevIndex + 1) % textOptions.length);
@@ -129,15 +135,64 @@ const HomeScreen = () => {
         scrollAnim.setValue(0);
     }, [textIndex]);
 
-    const horizontalData = [
-        { id: '1', title: 'laxmi pooja', image: require('../../../assets/icons/Home/laxmidevi_pic.png') },
-        { id: '2', title: 'mahalaxmi pooja', image: require('../../../assets/icons/Home/laxmidevi_pic.png') },
-        { id: '3', title: 'mahashiva pooja', image: require('../../../assets/icons/Home/laxmidevi_pic.png') },
-        { id: '4', title: 'HItem 4', image: require('../../../assets/icons/Home/laxmidevi_pic.png') },
-        { id: '5', title: 'HItem 5', image: require('../../../assets/icons/Home/laxmidevi_pic.png') },
-    ];
+    const staticImage = require('../../../assets/icons/Home/laxmidevi_pic.png');
 
-    const [selectedId, setSelectedId] = useState(horizontalData[0].id);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axiosInstance.get('hawan_category.json');
+                const transformedData = response.data.map((item, index) => ({
+                    id: index.toString(),
+                    title: item,
+                    image: staticImage,
+                }));
+                setHorizontalData(transformedData);
+            } catch (error) {
+                console.log('Error fetching data:', error.message);
+            }
+        };
+    
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axiosInstance.get('pooja_category.json');
+                const transformedData = response.data.map((item, index) => ({
+                    id: index.toString(),
+                    text: item,
+                    image: staticImage,
+                }));
+                setPoojaCategoryData(transformedData);
+            } catch (error) {
+                console.log('Error fetching data:', error.message);
+            }
+        };
+    
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axiosInstance.get('prod_category.json');
+             
+                const transformedData = Object.keys(response.data).map((key, index) => ({
+                    id: index.toString(),
+                    text: key,
+                    image: staticImage,
+                }));
+                setProductCategoryData(transformedData);
+            } catch (error) {
+                console.log('Error fetching data:', error.message);
+            }
+        };
+    
+        fetchData();
+    }, []);
+    
+
     const numColumns = 2;
 
     const itemWidth = width / numColumns - 60;
@@ -256,7 +311,7 @@ const HomeScreen = () => {
                             </View>
 
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, }}>
-                                {data.slice(0, 3).map((item, index) => (
+                                {poojaCategoryData.slice(0, 3).map((item, index) => (
                                     <PoojaTypeItemCard
                                         key={index}
                                         imageSource={item.image}
@@ -267,7 +322,7 @@ const HomeScreen = () => {
                             </View>
 
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, marginBottom: 10, }}>
-                                {data.slice(3).map((item, index) => (
+                                {poojaCategoryData.slice(3).map((item, index) => (
                                     <PoojaTypeItemCard
                                         key={index + 3}
                                         imageSource={item.image}
@@ -290,7 +345,7 @@ const HomeScreen = () => {
                             </View>
 
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, }}>
-                                {data.slice(0, 3).map((item, index) => (
+                                {productCategoryData.slice(0, 3).map((item, index) => (
                                     <ItemCard
                                         key={index}
                                         imageSource={item.image}
@@ -301,7 +356,7 @@ const HomeScreen = () => {
                             </View>
 
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, marginBottom: 10, }}>
-                                {data.slice(3).map((item, index) => (
+                                {productCategoryData.slice(3).map((item, index) => (
                                     <ItemCard
                                         key={index + 3}
                                         imageSource={item.image}

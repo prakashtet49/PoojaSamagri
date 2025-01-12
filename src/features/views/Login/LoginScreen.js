@@ -1,13 +1,16 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
-import { SafeAreaView, View, ScrollView, Image, Text, TouchableOpacity, TextInput, Keyboard, KeyboardAvoidingView, Platform } from "react-native";
+import { SafeAreaView, View, ScrollView, Image, Text, TouchableOpacity, TextInput, Keyboard, KeyboardAvoidingView, Platform, Alert } from "react-native";
 import Color from "../../../infrastruture/theme/color";
+import auth from '@react-native-firebase/auth';
+
 
 const LoginScreen = () => {
 
     const navigation = useNavigation();
 
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+    const [phoneNumber, setPhoneNumber] = useState('');
 
     React.useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -23,8 +26,33 @@ const LoginScreen = () => {
         };
     }, []);
 
-    const handleContinue = () => {
-        navigation.navigate('OTP');
+    
+    // const handleContinue = async () => {
+    //     const mobileNumber = '+91' + phoneNumber; 
+    //     try {
+    //         const confirmation = await auth().signInWithPhoneNumber(mobileNumber);
+    //         navigation.navigate('OTP', { confirmation });
+    //     } catch (error) {
+    //         console.log('Error sending OTP: ', error.message);
+    //         Alert.alert('Error', 'Failed to send OTP. Please try again.');
+    //     }
+    // };
+
+    const handleContinue = async () => {
+        
+        if (!/^\d{10}$/.test(phoneNumber)) {
+            Alert.alert("Invalid Phone Number", "Please enter a valid 10-digit phone number.");
+            return;
+        }
+
+        try {
+            // const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+            // Alert.alert("OTP Sent", `An OTP has been sent to ${phoneNumber}`);
+            navigation.navigate("OTP", { phoneNumber });
+        } catch (error) {
+            console.error("Failed to send OTP:", error.message);
+            Alert.alert("Error", "Failed to send OTP. Please try again.");
+        }
     };
 
     return (
@@ -51,10 +79,12 @@ const LoginScreen = () => {
                                 placeholderTextColor={Color.primary_grey}
                                 keyboardType="phone-pad"
                                 maxLength={10}
+                                value={phoneNumber}
+                                onChangeText={setPhoneNumber}
                             />
                         </View>
                         <Text style={{ flex: 1, textAlign: "center", color: "black", fontFamily: "Roboto-Medium", fontSize: 15, marginBottom: 15, }}>{"OR"}</Text>
-                        <View style={{ alignItems: "center", borderColor: Color.primary_grey, borderRadius: 12, borderWidth: 1, padding: 8, marginBottom: 25, alignSelf: "center", }}                       >
+                        <View style={{ alignItems: "center", borderColor: Color.primary_grey, borderRadius: 12, borderWidth: 1, padding: 8, marginBottom: 25, alignSelf: "center", }}>
                             <Image
                                 source={require("../../../assets/icons/Home/google.png")}
                                 resizeMode="contain"
