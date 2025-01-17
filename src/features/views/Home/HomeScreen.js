@@ -23,6 +23,11 @@ const HomeScreen = () => {
     const [productCategoryData, setProductCategoryData] = useState([]);
     const [addressBtmSheetVisible, setaddressBtmSheetVisible] = useState(false);
 
+    const onScroll = (event) => {
+        const index = Math.round(event.nativeEvent.contentOffset.x / width);
+        setCurrentIndex(index);
+    };
+
 
     useEffect(() => {
         setSelectedMenu('Home')
@@ -76,25 +81,21 @@ const HomeScreen = () => {
     }, []);
 
     const PoojaTypeItemCard = ({ imageSource, text, onPress }) => (
-        <TouchableOpacity onPress={onPress} style={{ width: '30%', justifyContent: 'center', alignItems: 'center', margin: 10, flexWrap: 'wrap', }} >
-            <View style={{ backgroundColor: Color.primary_blue, borderRadius: 10, padding: 8, justifyContent: 'center', alignItems: 'center', width: '100%', }}>
-                <Image source={imageSource} style={{ width: "100%", height: 100, resizeMode: 'contain' }} />
+        <TouchableOpacity onPress={onPress} style={{ width: '30%', alignItems: 'center', margin: 10 }} >
+            <View style={{ backgroundColor: Color.primary_blue, borderRadius: 10, padding: 8, justifyContent: 'center', alignItems: 'center', width: '100%', height: 100 }}>
+                <Image source={imageSource} style={{ width: "100%", height: "100%", resizeMode: 'contain' }} />
             </View>
-            <View style={{ width: '100%', marginTop: 10 }}>
-                <Text style={{ textAlign: 'center', fontSize: 12, fontFamily: "Roboto-Bold", flexWrap: 'wrap', color: "black", }} numberOfLines={2}>{text}</Text>
-            </View>
+            <Text style={{ textAlign: 'center', fontSize: 10, fontFamily: "Roboto-Bold", flexWrap: 'wrap', color: "black", }} numberOfLines={2} ellipsizeMode="tail">{text}</Text>
         </TouchableOpacity>
     );
 
 
     const ItemCard = ({ imageSource, text, onPress }) => (
-        <TouchableOpacity onPress={onPress} style={{ width: '30%', justifyContent: 'center', alignItems: 'center', margin: 10, flexWrap: 'wrap', }} >
-            <View style={{ backgroundColor: Color.primary_orange, borderRadius: 10, padding: 8, justifyContent: 'center', alignItems: 'center', width: '100%', }}>
-                <Image source={imageSource} style={{ width: "100%", height: 100, resizeMode: 'contain' }} />
+        <TouchableOpacity onPress={onPress} style={{ width: '30%', alignItems: 'center', margin: 10 }} >
+            <View style={{ backgroundColor: Color.primary_orange, borderRadius: 10, padding: 8, justifyContent: 'center', alignItems: 'center', width: '100%', height: 100 }}>
+                <Image source={imageSource} style={{ width: "100%", height: "100%", resizeMode: 'contain' }} />
             </View>
-            <View style={{ width: '100%', marginTop: 10 }}>
-                <Text style={{ textAlign: 'center', fontSize: 12, fontFamily: "Roboto-Bold", flexWrap: 'wrap', color: "black", }} numberOfLines={2}>{text}</Text>
-            </View>
+            <Text style={{ textAlign: 'center', fontSize: 10, fontFamily: "Roboto-Bold", flexWrap: 'wrap', color: "black", }} numberOfLines={2} ellipsizeMode="tail">{text}</Text>
         </TouchableOpacity>
     );
 
@@ -211,7 +212,7 @@ const HomeScreen = () => {
                 <View style={{ width: itemWidth2, height: itemWidth2, backgroundColor: isSelected ? Color.primary_blue : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 8, borderWidth: isSelected ? 1 : 0, borderColor: isSelected ? 'white' : 'transparent', }}>
                     <Image source={item.image} style={{ width: '80%', height: '80%', resizeMode: 'contain' }} />
                 </View>
-                <Text style={{ marginTop: 5, fontSize: 12, fontFamily: "Roboto-Medium", color: "white", textAlign: 'center', flexWrap: 'wrap', width: itemWidth2 }} numberOfLines={2}>
+                <Text style={{ marginTop: 5, fontSize: 10, fontFamily: "Roboto-Medium", color: "white", textAlign: 'center', flexWrap: 'wrap', width: itemWidth2 }} numberOfLines={2}>
                     {item.title}
                 </Text>
                 {isSelected && (
@@ -223,13 +224,13 @@ const HomeScreen = () => {
 
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
             <StatusBar barStyle="light-content" backgroundColor="#2C5364" />
 
             <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: 60 }}>
                 <SafeAreaView style={{ flex: 1, alignItems: 'center', }}>
 
-                    <ImageBackground source={require('../../../assets/icons/Home/bgcolor.jpg')} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: 20 }} resizeMode="cover">
+                    <ImageBackground source={require('../../../assets/icons/Home/bgcolor.jpg')} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} resizeMode="cover">
 
                         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
 
@@ -273,20 +274,28 @@ const HomeScreen = () => {
 
                         </View>
 
-                        <View style={{ height: 200, width: '100%', margin: 10, padding: 10, }}>
-                            <FlatList
-                                ref={flatListRef}
-                                data={images}
-                                style={{ flex: 1, borderRadius: 10, margin: 10, }}
-                                horizontal
-                                pagingEnabled
-                                showsHorizontalScrollIndicator={false}
-                                keyExtractor={(_, index) => index.toString()}
-                                renderItem={({ item }) => (
-                                    <Image source={item} style={{ height: '100%', width: Dimensions.get('window').width, resizeMode: 'stretch' }} />
-                                )}
-                                scrollEnabled={false}
-                            />
+                        <View style={{}}>
+                            <View style={{ height: 200, width: '100%', margin: 10, padding: 10, }}>
+                                <FlatList
+                                    ref={flatListRef}
+                                    data={images}
+                                    style={{ flex: 1, borderRadius: 10, margin: 10, }}
+                                    horizontal
+                                    pagingEnabled
+                                    onScroll={onScroll}
+                                    showsHorizontalScrollIndicator={false}
+                                    keyExtractor={(_, index) => index.toString()}
+                                    renderItem={({ item }) => (
+                                        <Image source={item} style={{ height: '100%', width: width, resizeMode: 'stretch' }} />
+                                    )}
+                                    scrollEnabled={false}
+                                />
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center',marginTop:-15, marginBottom:10 }}>
+                                {images.map((_, index) => (
+                                    <View key={index} style={[{ width: 5, height: 5, borderRadius: 5, marginHorizontal: 5, }, currentIndex === index ? { backgroundColor: "white" } : { backgroundColor: 'gray' },]} />
+                                ))}
+                            </View>
                         </View>
 
                         <View style={{ flex: 1 }}>
@@ -296,19 +305,20 @@ const HomeScreen = () => {
                                 keyExtractor={(item) => item.id}
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
-                                contentContainerStyle={{ paddingHorizontal: 15 }}
+                                contentContainerStyle={{ paddingHorizontal: 10 }}
+                                style={{ height: itemWidth2 + 50 }}
                             />
                         </View>
 
                     </ImageBackground>
 
-                    <View style={{ flex: 1, alignItems: 'center', }}>
+                    <View style={{ flex: 1, alignItems: 'center', backgroundColor: "white" }}>
 
                         {/* <ImageBackground source={require('../../../assets/icons/Home/bgcolor.jpg')} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} resizeMode="cover"> */}
 
                         <View style={{ flex: 1, backgroundColor: "white", alignItems: 'center', borderBottomRightRadius: 50, borderBottomLeftRadius: 50, shadowColor: "#d9d9d9", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 5, elevation: 8, }}>
 
-                            <View style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 5, marginStart: 10, marginEnd: 10, marginTop: 15, padding: 10 }}>
+                            <View style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 5, marginStart: 10, marginEnd: 10, marginTop: 5, padding: 10 }}>
                                 <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, marginRight: 4, flex: 1, }}>Explore Pooja Types</Text>
                                 <TouchableOpacity onPress={() => handleAllPoojaTypes()} style={{ flexDirection: "row", alignItems: "center", }}>
                                     <Text style={{ color: "darkblue", fontFamily: 'Roboto-Bold', fontSize: 16, }}>view all</Text>
@@ -316,7 +326,7 @@ const HomeScreen = () => {
                                 </TouchableOpacity>
                             </View>
 
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, }}>
+                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, }}>
                                 {poojaCategoryData.slice(0, 3).map((item, index) => (
                                     <PoojaTypeItemCard
                                         key={index}
@@ -327,7 +337,7 @@ const HomeScreen = () => {
                                 ))}
                             </View>
 
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, marginBottom: 10, }}>
+                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, }}>
                                 {poojaCategoryData.slice(3).map((item, index) => (
                                     <PoojaTypeItemCard
                                         key={index + 3}
@@ -341,16 +351,16 @@ const HomeScreen = () => {
                         </View>
                         {/* </ImageBackground> */}
 
-                        <View style={{ flex: 1, alignItems: 'center', borderBottomRightRadius: 50, borderBottomLeftRadius: 50, marginBottom: 20 }}>
-                            <View style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 5, marginStart: 10, marginEnd: 10, marginTop: 15, padding: 10 }}>
+                        <View style={{ flex: 1, alignItems: 'center', borderBottomRightRadius: 50, borderBottomLeftRadius: 50, marginBottom: 20, backgroundColor: "white" }}>
+                            <View style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 5, marginStart: 10, marginEnd: 10, padding: 10 }}>
                                 <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, marginRight: 4, flex: 1, }}> Explore Pooja Categories  </Text>
                                 <TouchableOpacity onPress={() => handleAllPoojaCategories()} style={{ flexDirection: "row", alignItems: "center", }}>
-                                    <Text style={{ color: "darkorange", fontFamily: 'Roboto-Bold', fontSize: 16, }}>see all</Text>
+                                    <Text style={{ color: "darkorange", fontFamily: 'Roboto-Bold', fontSize: 16, }}>view all</Text>
                                     <Image source={require('../../../assets/icons/Home/arrow.png')} resizeMode='contain' style={{ width: 22, height: 22, tintColor: "darkorange", transform: [{ rotate: '270deg' }] }} />
                                 </TouchableOpacity>
                             </View>
 
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, }}>
+                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, }}>
                                 {productCategoryData.slice(0, 3).map((item, index) => (
                                     <ItemCard
                                         key={index}
@@ -361,7 +371,7 @@ const HomeScreen = () => {
                                 ))}
                             </View>
 
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, marginBottom: 10, }}>
+                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, marginBottom: 10, }}>
                                 {productCategoryData.slice(3).map((item, index) => (
                                     <ItemCard
                                         key={index + 3}

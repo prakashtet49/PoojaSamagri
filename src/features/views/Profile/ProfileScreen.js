@@ -29,7 +29,7 @@ const ProfileScreen = () => {
 
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor:'white' }}>
 
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
 
@@ -59,8 +59,8 @@ const ProfileScreen = () => {
                         <Image
                             source={require('../../../assets/icons/Home/profile.png')} resizeMode='contain'
                             style={{ width: 80, height: 80, borderRadius: 30, marginRight: 15, tintColor: "white" }} />
-                        <View style={{ flexDirection: 'column', marginHorizontal: 10 }}>
-                            <Text style={{ fontSize: 24, color: "white", fontFamily: 'Roboto-Bold' }}> Upendar</Text>
+                        <View style={{ flexDirection: 'column', marginHorizontal: 10, justifyContent:'flex-start' }}>
+                            <Text style={{ fontSize: 20, color: "white", fontFamily: 'Roboto-Bold' }}> Upendar</Text>
                             <Text style={{ fontSize: 20, color: "white", fontFamily: 'Roboto-Medium' }}>45234 567 890</Text>
                         </View>
                     </View>
@@ -82,7 +82,7 @@ const ProfileScreen = () => {
                                 source={require('../../../assets/icons/Profile/Location.png')}
                                 style={{ width: 35, height: 35, marginRight: 15 }}
                             />
-                            <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium' }}>Your Address</Text>
+                            <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium' }}>My Address</Text>
                         </View>
                         <Image
                             source={require('../../../assets/icons/Profile/Forward.png')}
@@ -101,7 +101,7 @@ const ProfileScreen = () => {
                                 source={require('../../../assets/icons/Profile/Transaction.png')}
                                 style={{ width: 35, height: 35, marginRight: 15 }}
                             />
-                            <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium' }}>Your Transactions</Text>
+                            <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium' }}>My Transactions</Text>
                         </View>
                         <Image
                             source={require('../../../assets/icons/Profile/Forward.png')}

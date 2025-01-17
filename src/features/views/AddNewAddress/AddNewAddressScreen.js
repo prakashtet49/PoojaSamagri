@@ -34,9 +34,9 @@ const AddNewAddressScreen = () => {
 
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor:'white' }}>
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15, height: 60, backgroundColor: '#f5f5f5', borderBottomWidth: 1, borderBottomColor: '#ddd', }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15, height: 60, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#ddd', }}>
                 <TouchableOpacity onPress={() => navigateBack()} style={{ flex: 1 }}>
                     <Text>
                         <Image
