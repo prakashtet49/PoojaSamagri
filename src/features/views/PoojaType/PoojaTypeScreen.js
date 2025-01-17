@@ -33,6 +33,9 @@ const PoojaTypeScreen = () => {
         { id: '4', title: 'Item 4', image: require('../../../assets/icons/Home/laxmidevi_pic.png'), price: "₹200", description: "Quantity: 1 Piece" },
         { id: '5', title: 'Item 5', image: require('../../../assets/icons/Home/laxmidevi_pic.png'), price: "₹200", description: "Quantity: 1 Piece" },
         { id: '6', title: 'Item 6', image: require('../../../assets/icons/Home/laxmidevi_pic.png'), price: "₹200", description: "Quantity: 1 Piece" },
+        { id: '7', title: 'Item 6', image: require('../../../assets/icons/Home/laxmidevi_pic.png'), price: "₹200", description: "Quantity: 1 Piece" },
+        { id: '8', title: 'Item 6', image: require('../../../assets/icons/Home/laxmidevi_pic.png'), price: "₹200", description: "Quantity: 1 Piece" },
+
     ];
 
     const [selectedId, setSelectedId] = useState(poojaCategoryData[0].id);
@@ -61,8 +64,8 @@ const PoojaTypeScreen = () => {
         const isSelected = selectedId === item.id;
         return (
             <TouchableOpacity onPress={() => setSelectedId(item.id)} style={{ marginHorizontal: 5, alignItems: 'center', }}>
-                <View style={{ width: itemWidth2, height: itemWidth2, backgroundColor: isSelected ? Color.primary_blue : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 8, borderWidth: isSelected ? 2 : 0, borderColor: isSelected ? 'white' : 'transparent', }}>
-                    <Image source={item.image} style={{ width: '80%', height: '80%', resizeMode: 'contain' }} />
+                <View style={{ width: itemWidth2, height: itemWidth2, backgroundColor: isSelected ? Color.primary_blue : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 8, borderWidth: isSelected ? 2 : 1, borderColor: isSelected ? 'white' : 'lightgray', }}>
+                    <Image source={item.image} style={{ width: '80%', height: '80%', resizeMode: 'contain', }} />
                 </View>
                 <Text style={{ marginTop: 5, fontSize: 10, fontFamily: "Roboto-Medium", color: 'black', textAlign: 'center', flexWrap: 'wrap', width: itemWidth2 }} numberOfLines={2}>
                     {item.text}
@@ -72,6 +75,10 @@ const PoojaTypeScreen = () => {
                 )}
             </TouchableOpacity>
         );
+    };
+
+    const handleCartClick = () => {
+        navigation.navigate("ADDTOCART");
     };
 
 
@@ -90,39 +97,53 @@ const PoojaTypeScreen = () => {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, height: 60, borderBottomWidth: 1, borderBottomColor: Color.primary_grey, }}>
-                <TouchableOpacity onPress={() => navigateBack()} style={{ marginRight: 25 }}>
-                    <Image resizeMode='contain' source={require('../../../assets/icons/Home/Left.png')} style={{ width: 30, height: 30 }} />
-                </TouchableOpacity>
+            <View style={{ flex: 1 }}>
 
-                <Text style={{ fontSize: 18, fontFamily: 'Roboto-Bold', textAlign: 'left', }}>{screenName}</Text>
-                <View style={{ flex: 1 }} />
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, height: 60, borderBottomWidth: 1, borderBottomColor: Color.primary_grey, }}>
+                    <TouchableOpacity onPress={() => navigateBack()} style={{ marginRight: 25 }}>
+                        <Image resizeMode='contain' source={require('../../../assets/icons/Home/Left.png')} style={{ width: 30, height: 30 }} />
+                    </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => handleSearch()} style={{ borderRadius: 20, padding: 5 }}>
-                    <Image resizeMode="contain" source={require('../../../assets/icons/Home/Search.png')} style={{ width: 20, height: 20, marginLeft: 10 }} />
-                </TouchableOpacity>
-            </View>
+                    <Text style={{ fontSize: 18, fontFamily: 'Roboto-Bold', textAlign: 'left', }}>{screenName}</Text>
+                    <View style={{ flex: 1 }} />
 
-            <View>
+                    <TouchableOpacity onPress={() => handleSearch()} style={{ borderRadius: 20, padding: 5 }}>
+                        <Image resizeMode="contain" source={require('../../../assets/icons/Home/Search.png')} style={{ width: 20, height: 20, marginLeft: 10 }} />
+                    </TouchableOpacity>
+                </View>
+
+                <View style={{}}>
+                    <FlatList
+                        data={poojaCategoryData}
+                        renderItem={renderHorizontalItem}
+                        keyExtractor={(item) => item.id}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ paddingVertical: 10, paddingHorizontal: 5 }}
+                    />
+                    <View style={{ flex: 1, borderBottomColor: Color.primary_grey, borderBottomWidth: 1, }} />
+                </View>
+
                 <FlatList
-                    data={poojaCategoryData}
-                    renderItem={renderHorizontalItem}
+                    data={data}
+                    renderItem={renderItem}
                     keyExtractor={(item) => item.id}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingVertical: 10, paddingHorizontal: 5 }}
+                    contentContainerStyle={{ padding: 10 }}
                 />
-                <View style={{ flex: 1, borderBottomColor: Color.primary_grey, borderBottomWidth: 1 }} />
             </View>
 
-            <FlatList
-                data={data}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={{ padding: 10 }}
-            />
+            <TouchableOpacity onPress={() => { handleCartClick() }} style={{ flexDirection: 'row', alignItems: "center", justifyContent: "space-between", alignSelf: 'center', padding: 5, width: "40%", backgroundColor: "#525252", borderRadius: 30, position: 'absolute', bottom: 20, }}>
+                <View style={{ padding: 5, justifyContent: "flex-start", alignItems: "flex-start", marginStart: 10 }}>
+                    <Text style={{ fontSize: 15, color: "white", textAlign: 'center', fontFamily: "Roboto-Medium", }}>View cart</Text>
+                    <Text style={{ fontSize: 14, color: "white", textAlign: 'center', fontFamily: "Roboto-Light" }}>3 Items</Text>
+                </View>
+                <View style={{ backgroundColor: '#A8A8A8', borderRadius: 20, padding: 2, width: 40, height: 40 }}>
+                    <Image source={require('../../../assets/icons/Home/arrow.png')} resizeMode='contain' style={{ width: "100%", height: "100%", tintColor: "white", transform: [{ rotate: '270deg' }] }} />
+                </View>
+
+            </TouchableOpacity>
 
         </SafeAreaView>
     );

@@ -274,7 +274,7 @@ const HomeScreen = () => {
 
                         </View>
 
-                        <View style={{}}>
+                        <View >
                             <View style={{ height: 200, width: '100%', margin: 10, padding: 10, }}>
                                 <FlatList
                                     ref={flatListRef}
