@@ -1,15 +1,58 @@
-import { Image, Modal, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import React from 'react';
+import { FlatList, Image, Modal, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import Color from '../../../../infrastruture/theme/color';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 
 const AddAddressSheet = ({ visible, close }) => {
 
     const navigation = useNavigation();
+    const [addresses, setAddresses] = useState([]);
 
     const handleAddNewAddress = () => {
         navigation.navigate("ADDADDRESS");
     }
+
+    useEffect(() => {
+        const fetchAddresses = async () => {
+            try {
+                const user = auth().currentUser;
+                if (!user) {
+                    Alert.alert('Error', 'User not authenticated.');
+                    return;
+                }
+
+                const userId = user.uid;
+                const addressesRef = database().ref(`/users/${userId}/addresses`);
+
+                addressesRef.once('value', snapshot => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        const addressList = Object.keys(data).map(key => data[key]);
+                        setAddresses(addressList);
+                    } else {
+                        setAddresses([]);
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching addresses:', error);
+                Alert.alert('Error', 'There was an issue fetching the addresses.');
+            }
+        };
+
+        fetchAddresses();
+    }, []);
+
+    const addressItem = ({ item }) => (
+        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', flexWrap: "wrap",}}>
+            <Image resizeMode='contain' source={require('../../../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
+            <Text style={{ fontSize: 15, fontFamily: 'Roboto-Medium', color: "black", flexWrap: "wrap", flex: 1 }} numberOfLines={2} ellipsizeMode="tail">
+                {item.flatNumber}, {item.area},{item.landmark}, {item.townCity}, {item.state}, {item.pincode}
+            </Text>
+        </TouchableOpacity>
+    );
 
     return (
         <Modal
@@ -43,26 +86,13 @@ const AddAddressSheet = ({ visible, close }) => {
 
                 <View style={{ height: 1, backgroundColor: Color.primary_grey, marginVertical: 10 }} />
 
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', }} >
-                    <Image resizeMode='contain' source={require('../../../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
-                    <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium', color: "black" }}> Hyderabad, Telangana</Text>
-                </TouchableOpacity>
-
-                <View style={{ height: 1, backgroundColor: Color.primary_grey, marginVertical: 10 }} />
-
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', }} >
-                    <Image resizeMode='contain' source={require('../../../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
-                    <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium', color: "black" }}> Hyderabad, Telangana</Text>
-                </TouchableOpacity>
-
-                <View style={{ height: 1, backgroundColor: Color.primary_grey, marginVertical: 10 }} />
-
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', }} >
-                    <Image resizeMode='contain' source={require('../../../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
-                    <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium', color: "black" }}> Hyderabad, Telangana</Text>
-                </TouchableOpacity>
-
-                <View style={{ height: 1, backgroundColor: Color.primary_grey, marginVertical: 10 }} />
+                <FlatList
+                    data={addresses}
+                    renderItem={addressItem}
+                    keyExtractor={(item, index) => index.toString()}
+                    ListEmptyComponent={<Text style={{ fontSize: 16, color: 'black', textAlign: 'center' }}>No addresses available</Text>}
+                    ItemSeparatorComponent={() => (<View style={{ height: 1, backgroundColor: Color.primary_grey, marginVertical: 10 }} />)}
+                />
 
             </View>
         </Modal>

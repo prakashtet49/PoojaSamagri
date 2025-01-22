@@ -6,6 +6,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import axiosInstance from '../../../api/ApiManager';
 import AddAddressSheet from '../Profile/components/AddAddressSheet';
+import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 
 const HomeScreen = () => {
     const { width } = Dimensions.get('window');
@@ -22,6 +24,8 @@ const HomeScreen = () => {
     const [poojaCategoryData, setPoojaCategoryData] = useState([]);
     const [productCategoryData, setProductCategoryData] = useState([]);
     const [addressBtmSheetVisible, setaddressBtmSheetVisible] = useState(false);
+    const [addresses, setAddresses] = useState([]);
+
 
     const onScroll = (event) => {
         const index = Math.round(event.nativeEvent.contentOffset.x / width);
@@ -143,6 +147,37 @@ const HomeScreen = () => {
     const staticImage = require('../../../assets/icons/Home/laxmidevi_pic.png');
 
     useEffect(() => {
+        const fetchAddresses = async () => {
+            try {
+                const user = auth().currentUser;
+                if (!user) {
+                    Alert.alert('Error', 'User not authenticated.');
+                    return;
+                }
+
+                const userId = user.uid;
+                const addressesRef = database().ref(`/users/${userId}/addresses`);
+
+                addressesRef.once('value', snapshot => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        const addressList = Object.keys(data).map(key => data[key]);
+                        setAddresses(addressList);
+                        console.log('address', addressList);
+                    } else {
+                        setAddresses([]);
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching addresses:', error);
+                Alert.alert('Error', 'There was an issue fetching the addresses.');
+            }
+        };
+
+        fetchAddresses();
+    }, []);
+
+    useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await axiosInstance.get('hawan_category.json');
@@ -225,12 +260,13 @@ const HomeScreen = () => {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
-            <StatusBar barStyle="light-content" backgroundColor="#2C5364" />
+            <StatusBar barStyle="light-content" backgroundColor="#213C45" />
 
             <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: 60 }}>
                 <SafeAreaView style={{ flex: 1, alignItems: 'center', }}>
 
-                    <ImageBackground source={require('../../../assets/icons/Home/bgcolor.jpg')} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} resizeMode="cover">
+                    {/* <ImageBackground source={require('../../../assets/icons/Home/bgcolor.jpg')} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} resizeMode="cover"> */}
+                    <View style={{ backgroundColor: "#213C45", flex: 1, alignItems: 'center', justifyContent: 'center' }}>
 
                         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
 
@@ -240,26 +276,25 @@ const HomeScreen = () => {
 
                                 <Image source={require('../../../assets/icons/Home/profile.png')} style={{ width: 35, height: 35, borderRadius: 25, tintColor: "white" }} />
 
-                                <View style={{ marginLeft: 10, flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <View>
-                                            <Text style={{ fontSize: 20, fontFamily: 'Roboto-Medium', color: "white" }}>Delivering to</Text>
-                                            <Text style={{ fontSize: 12, fontFamily: 'Roboto-Regular', color: "white" }}>123 Main St, City, Country</Text>
-                                        </View>
+                                <View style={{ marginLeft: 10, flex: 1, justifyContent: "flex-start", }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: "flex-start", alignItems: 'center' }}>
+                                        <Text style={{ fontSize: 20, fontFamily: 'Roboto-Medium', color: "white", }}>Delivering to</Text>
                                         <TouchableOpacity onPress={() => openBottomSheet()} style={{ marginLeft: 5 }}>
-                                            <Image
-                                                source={require('../../../assets/icons/Home/arrow.png')}
-                                                style={{ width: 30, height: 30, tintColor: "white" }}
-                                            />
+                                            <Image source={require('../../../assets/icons/Home/arrow.png')} style={{ width: 30, height: 30, tintColor: "white" }} />
                                         </TouchableOpacity>
                                     </View>
+
+                                    {addresses.length > 0 ? (
+                                        <Text style={{ fontSize: 12, fontFamily: 'Roboto-Regular', color: "white", width: '100%' }} numberOfLines={1} ellipsizeMode="tail">
+                                            {addresses[0].flatNumber}, {addresses[0].area},{addresses[0].landmark}, {addresses[0].townCity}, {addresses[0].state}, {addresses[0].pincode}
+                                        </Text>
+                                    ) : (
+                                        <Text style={{ fontSize: 12, fontFamily: 'Roboto-Regular', color: "white" }}>Add Address</Text>
+                                    )}
                                 </View>
 
                                 <TouchableOpacity onPress={() => handleAddtoCart()} style={{ marginLeft: 10 }}>
-                                    <Image
-                                        source={require('../../../assets/icons/Home/cart.png')}
-                                        style={{ width: 30, height: 30, tintColor: "white" }}
-                                    />
+                                    <Image source={require('../../../assets/icons/Home/cart.png')} style={{ width: 30, height: 30, tintColor: "white" }} />
                                 </TouchableOpacity>
 
                             </View>
@@ -291,7 +326,7 @@ const HomeScreen = () => {
                                     scrollEnabled={false}
                                 />
                             </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center',marginTop:-15, marginBottom:10 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: -15, marginBottom: 10 }}>
                                 {images.map((_, index) => (
                                     <View key={index} style={[{ width: 5, height: 5, borderRadius: 5, marginHorizontal: 5, }, currentIndex === index ? { backgroundColor: "white" } : { backgroundColor: 'gray' },]} />
                                 ))}
@@ -310,7 +345,9 @@ const HomeScreen = () => {
                             />
                         </View>
 
-                    </ImageBackground>
+                    </View>
+
+                    {/* </ImageBackground> */}
 
                     <View style={{ flex: 1, alignItems: 'center', backgroundColor: "white" }}>
 

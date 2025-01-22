@@ -65,23 +65,25 @@ const OtpScreen = () => {
     // Verify OTP using Firebase
     const handleVerifyOtp = async () => {
         const enteredOtp = otp.join(""); // Combine OTP from input fields
-      
+
         if (enteredOtp.length === otp.length) {  // Ensure all OTP fields are filled
-          try {
-            // Verify the OTP entered by the user
-            if (confirmation) {
-              await confirmation.confirm(enteredOtp);  // Firebase OTP confirmation
-              Alert.alert("Success", "OTP verified successfully!");
-              navigation.navigate('HOME');
+            try {
+                // Verify the OTP entered by the user
+                if (confirmation) {
+                    await confirmation.confirm(enteredOtp);  // Firebase OTP confirmation
+                    setTimeout(() => {
+                        Alert.alert("Success", "OTP verified successfully!");
+                    }, [1000]);
+                    navigation.navigate('HOME');
+                }
+            } catch (error) {
+                console.error("Invalid OTP:", error.message);
+                Alert.alert("Failure", "Invalid OTP. Please try again.");
             }
-          } catch (error) {
-            console.error("Invalid OTP:", error.message);
-            Alert.alert("Failure", "Invalid OTP. Please try again.");
-          }
         } else {
-          Alert.alert("Error", "Please enter the complete OTP.");
+            Alert.alert("Error", "Please enter the complete OTP.");
         }
-      };
+    };
 
     // Start the retry timer
     const startRetryTimer = () => {
@@ -101,7 +103,7 @@ const OtpScreen = () => {
     };
 
     const handleRetry = () => {
-        setOtp(["", "", "", "", ""]);
+        setOtp(["", "", "", "", "",""]);
         setIsButtonEnabled(false);
         inputRefs.current[0]?.focus();
         sendOtp();
@@ -132,7 +134,7 @@ const OtpScreen = () => {
                         </Text>
                     </View>
 
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 15, marginHorizontal: 15, }}                 >
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 15, marginHorizontal: 15, }}>
                         {otp.map((value, index) => (
                             <TextInput
                                 key={index}

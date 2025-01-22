@@ -14,34 +14,18 @@ import PoojaTypeScreen from '../../features/views/PoojaType/PoojaTypeScreen';
 import PoojaCategoryScreen from '../../features/views/PoojaCategory/PoojaCategoryScreen';
 import AddtoCartScreen from '../../features/views/Cart/AddtoCartScreen';
 import OrderSuccessScreen from '../../features/views/OrderSuccess/OrderSuccessScreen';
+import auth from '@react-native-firebase/auth';
+
 
 const Stack = createStackNavigator();
 
 const AppNavigation = () => {
-    const [loading, setLoading] = useState(true);
-    const [loggedIn, setLoggedIn] = useState(false);
-
-    useEffect(() => {
-        const initializeApp = async () => {
-            // Simulate a splash screen delay and check login status
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            // Here you would check the login status from async storage or an API
-            setLoading(false);
-            setLoggedIn(false); // Change this based on actual login status
-        };
-
-        initializeApp();
-    }, []);
-
-    if (loading) {
-        return <SplashScreen />;
-    }
 
     return (
         <NavigationContainer>
-            {/* <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={loggedIn ? "HOME" : "HOME"}> */}
             <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="HOME" component={HomeScreen} />
+                <Stack.Screen name="SPLASH" component={SplashScreen} />
+                <Stack.Screen name="HOME" component={HomeScreen} />
                 <Stack.Screen name="LOGIN" component={LoginScreen} />
                 <Stack.Screen name="OTP" component={OtpScreen} />
                 <Stack.Screen name="PROFILE" component={ProfileScreen} />

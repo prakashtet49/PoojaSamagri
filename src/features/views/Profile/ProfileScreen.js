@@ -3,11 +3,14 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView, Dimensions, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
 import AddAddressSheet from './components/AddAddressSheet';
+import auth from '@react-native-firebase/auth';
 
 const ProfileScreen = () => {
 
     const screenWidth = Dimensions.get('window').width;
     const navigation = useNavigation();
+    const [addressBtmSheetVisible, setaddressBtmSheetVisible] = useState(false);
+
 
     const navigatetoHome = () => {
         navigation.navigate('HOME')
@@ -22,14 +25,25 @@ const ProfileScreen = () => {
         navigation.navigate('ADDPAYMENT')
     };
 
-    const [addressBtmSheetVisible, setaddressBtmSheetVisible] = useState(false);
+    const handleLogout = async () => {
+        try {
+            await auth().signOut();
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'LOGIN' }],
+            });
+        } catch (error) {
+            console.log('Error logging out: ', error);
+        }
+    };
+
 
     const openBottomSheet = () => setaddressBtmSheetVisible(true);
     const closeBottomSheet = () => setaddressBtmSheetVisible(false);
 
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor:'white' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
 
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
 
@@ -59,7 +73,7 @@ const ProfileScreen = () => {
                         <Image
                             source={require('../../../assets/icons/Home/profile.png')} resizeMode='contain'
                             style={{ width: 80, height: 80, borderRadius: 30, marginRight: 15, tintColor: "white" }} />
-                        <View style={{ flexDirection: 'column', marginHorizontal: 10, justifyContent:'flex-start' }}>
+                        <View style={{ flexDirection: 'column', marginHorizontal: 10, justifyContent: 'flex-start' }}>
                             <Text style={{ fontSize: 20, color: "white", fontFamily: 'Roboto-Bold' }}> Upendar</Text>
                             <Text style={{ fontSize: 20, color: "white", fontFamily: 'Roboto-Medium' }}>45234 567 890</Text>
                         </View>
@@ -159,7 +173,7 @@ const ProfileScreen = () => {
                 </View>
 
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <TouchableOpacity style={{ width: '80%', borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: Color.primary_black, padding: 15, margin: 10, }}>
+                    <TouchableOpacity onPress={handleLogout} style={{ width: '80%', borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: Color.primary_black, padding: 15, margin: 10, }}>
                         <Text style={{ textAlign: 'center', fontSize: 18, color: 'white', fontFamily: 'Roboto-Bold' }}>Log Out</Text>
                     </TouchableOpacity>
                 </View>

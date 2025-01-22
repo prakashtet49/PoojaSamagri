@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, SafeAreaView, Image, Alert } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 
 const AddNewAddressScreen = () => {
     const navigation = useNavigation();
@@ -19,22 +22,58 @@ const AddNewAddressScreen = () => {
         navigation.goBack();
     };
 
-    const handleAddAddress = () => {
-        Alert.alert(
-            'Address Added', 
-            'Your address has been added successfully!',
-            [
-                {
-                    text: 'OK', 
-                    onPress: () => navigation.navigate("HOME")
-                }
-            ]
-        );
+
+    const handleAddAddress = async () => {
+        let missingFields = [];
+    
+        if (!flatNumber) missingFields.push('Flat/House/Apartment');
+        if (!area) missingFields.push('Area');
+        if (!townCity) missingFields.push('Town/City');
+        if (!state) missingFields.push('State');
+        if (!pincode) missingFields.push('Pincode');
+    
+        if (missingFields.length > 0) {
+            Alert.alert(
+                'Missing Fields',
+                `Please fill in the following fields: ${missingFields.join(', ')}`,
+                [{ text: 'OK' }]
+            );
+            return;
+        }
+    
+        try {
+            // Get the authenticated user
+            const user = auth().currentUser;
+            if (!user) {
+                Alert.alert('Error', 'User not authenticated.');
+                return;
+            }
+    
+            const userId = user.uid; // Get the unique user ID
+            const address = { flatNumber, area, landmark, townCity, state, pincode };
+    
+            // Save address to Firebase Realtime Database
+            const newAddressRef = database().ref(`/users/${userId}/addresses`).push();
+            await newAddressRef.set(address);
+    
+            Alert.alert(
+                'Address Added',
+                'Your address has been added successfully!',
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => navigation.navigate('HOME')
+                    }
+                ]
+            );
+        } catch (error) {
+            console.error('Error saving address:', error);
+            Alert.alert('Error', 'There was an issue saving the address.');
+        }
     };
 
-
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor:'white' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
 
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15, height: 60, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#ddd', }}>
                 <TouchableOpacity onPress={() => navigateBack()} style={{ flex: 1 }}>
@@ -58,7 +97,7 @@ const AddNewAddressScreen = () => {
 
                     <TextInput
                         style={{ borderWidth: 1, marginBottom: 25, borderColor: Color.primary_grey, borderRadius: 8, padding: 15, fontSize: 16, color: "black", fontFamily: 'Roboto-Regular', backgroundColor: "white", }}
-                        // placeholder="Enter Flat/House/Apartment"
+                        placeholder="Enter Flat/House/Apartment"
                         value={flatNumber}
                         onChangeText={setFlatNumber}
                         placeholderTextColor={Color.primary_grey}
@@ -71,6 +110,7 @@ const AddNewAddressScreen = () => {
                     <TextInput
                         style={{ borderWidth: 1, marginBottom: 25, borderColor: Color.primary_grey, borderRadius: 8, padding: 15, fontSize: 16, color: "black", fontFamily: 'Roboto-Regular', backgroundColor: "white", }}
                         placeholderTextColor={Color.primary_grey}
+                        placeholder="Enter Area/Colony/Street"
                         value={area}
                         onChangeText={setArea}
                     />
@@ -82,6 +122,7 @@ const AddNewAddressScreen = () => {
                     <TextInput
                         style={{ borderWidth: 1, marginBottom: 25, borderColor: Color.primary_grey, borderRadius: 8, padding: 15, fontSize: 16, color: "black", fontFamily: 'Roboto-Regular', backgroundColor: "white", }}
                         placeholderTextColor={Color.primary_grey}
+                        placeholder="Enter Landmark (optional)"
                         value={landmark}
                         onChangeText={setLandmark}
                     />
@@ -93,6 +134,7 @@ const AddNewAddressScreen = () => {
                     <TextInput
                         style={{ borderWidth: 1, marginBottom: 25, borderColor: Color.primary_grey, borderRadius: 8, padding: 15, fontSize: 16, color: "black", fontFamily: 'Roboto-Regular', backgroundColor: "white", }}
                         placeholderTextColor={Color.primary_grey}
+                        placeholder="Enter Town/City"
                         value={townCity}
                         onChangeText={setTownCity}
                     />
@@ -117,6 +159,7 @@ const AddNewAddressScreen = () => {
                             <TextInput style={{ borderWidth: 1, borderColor: Color.primary_grey, borderRadius: 8, padding: 15, fontSize: 16, color: "black", fontFamily: "Roboto-Regular", backgroundColor: "white", }}
                                 placeholder="Enter Pincode"
                                 placeholderTextColor={Color.primary_grey}
+                                keyboardType="decimal-pad"
                                 value={pincode}
                                 onChangeText={setPincode}
                             />
