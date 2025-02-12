@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView, Dimensions, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView, Dimensions, TouchableOpacity, Modal, TouchableWithoutFeedback, Button, TextInput, StatusBar } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
 import AddAddressSheet from './components/AddAddressSheet';
 import auth from '@react-native-firebase/auth';
@@ -10,7 +10,9 @@ const ProfileScreen = () => {
     const screenWidth = Dimensions.get('window').width;
     const navigation = useNavigation();
     const [addressBtmSheetVisible, setaddressBtmSheetVisible] = useState(false);
-
+    const [user, setUser] = useState(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [name, setName] = useState("");
 
     const navigatetoHome = () => {
         navigation.navigate('HOME')
@@ -42,8 +44,42 @@ const ProfileScreen = () => {
     const closeBottomSheet = () => setaddressBtmSheetVisible(false);
 
 
+    useEffect(() => {
+        fetchUserData();
+
+        const subscriber = auth().onAuthStateChanged((authenticatedUser) => {
+            if (authenticatedUser) {
+                setUser(authenticatedUser);
+                setName(authenticatedUser.displayName || "");
+            }
+        });
+
+        return subscriber;
+    }, []);
+
+    const fetchUserData = async () => {
+        const currentUser = auth().currentUser;
+        if (currentUser) {
+            await currentUser.reload(); 
+            setUser(auth().currentUser);
+        }
+    };
+
+    const updateUserName = async () => {
+        if (name.trim() === "") return;
+        try {
+            await auth().currentUser.updateProfile({ displayName: name });
+            await fetchUserData();
+            setIsModalVisible(false);
+        } catch (error) {
+            console.error("Error updating name:", error);
+        }
+    };
+
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+            <StatusBar backgroundColor="#213C45" />
 
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
 
@@ -73,9 +109,40 @@ const ProfileScreen = () => {
                         <Image
                             source={require('../../../assets/icons/Home/profile.png')} resizeMode='contain'
                             style={{ width: 80, height: 80, borderRadius: 30, marginRight: 15, tintColor: "white" }} />
-                        <View style={{ flexDirection: 'column', marginHorizontal: 10, justifyContent: 'flex-start' }}>
+                        {/* <View style={{ flexDirection: 'column', marginHorizontal: 10, justifyContent: 'flex-start' }}>
                             <Text style={{ fontSize: 20, color: "white", fontFamily: 'Roboto-Bold' }}> Upendar</Text>
                             <Text style={{ fontSize: 20, color: "white", fontFamily: 'Roboto-Medium' }}>45234 567 890</Text>
+                        </View> */}
+                        <View style={{ flexDirection: "column", marginHorizontal: 10, justifyContent: "flex-start" }}>
+                            <TouchableOpacity style={{flexDirection:"row", alignItems:"center"}} onPress={() => setIsModalVisible(true)}>
+                                <Text style={{ fontSize: 24, color: "white", fontFamily: "Roboto-Medium" }}>{user?.displayName ? user.displayName : "Add Name"}</Text>
+                                <Image source={require('../../../assets/icons/Profile/edit.png')} style={{ width: 15, height: 15, tintColor: 'white', marginStart:20 }} />
+                            </TouchableOpacity>
+
+                            <Text style={{ fontSize: 20, color: "white", fontFamily: "Roboto-Medium" }}>{user?.phoneNumber || "Add Phone Number"}</Text>
+
+                            <Modal
+                                visible={isModalVisible}
+                                transparent
+                                animationType="fade"
+                                onRequestClose={() => setIsModalVisible(false)}
+                            >
+                                <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)", }}>
+                                    <View style={{ width: "80%", backgroundColor: "white", padding: 20, borderRadius: 10, alignItems: "center", }}>
+                                        <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10, }}>Update Name</Text>
+                                        <TextInput
+                                            value={name}
+                                            onChangeText={setName}
+                                            placeholder="Enter Name"
+                                            style={{ width: "100%", borderWidth: 1,fontFamily:"Roboto-Medium",fontSize:20, borderColor: "#ccc", borderRadius: 5, padding: 10, marginBottom: 10, }}
+                                        />
+                                        <View style={{ flexDirection: "row", justifyContent: "space-between", width: "100%", }}>
+                                            <Button title="Cancel" onPress={() => setIsModalVisible(false)} color="red" />
+                                            <Button title="Save" onPress={updateUserName} />
+                                        </View>
+                                    </View>
+                                </View>
+                            </Modal>
                         </View>
                     </View>
                 </View>

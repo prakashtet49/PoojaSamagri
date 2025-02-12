@@ -134,7 +134,7 @@ const PoojaTypeScreen = () => {
                 />
             </View>
 
-            <TouchableOpacity onPress={() => { handleCartClick() }} style={{ flexDirection: 'row', alignItems: "center", justifyContent: "space-between", alignSelf: 'center', padding: 5, width: "40%", backgroundColor: "#525252", borderRadius: 30, position: 'absolute', bottom: 20, }}>
+            {/* <TouchableOpacity onPress={() => { handleCartClick() }} style={{ flexDirection: 'row', alignItems: "center", justifyContent: "space-between", alignSelf: 'center', padding: 5, width: "40%", backgroundColor: "#525252", borderRadius: 30, position: 'absolute', bottom: 20, }}>
                 <View style={{ padding: 5, justifyContent: "flex-start", alignItems: "flex-start", marginStart: 10 }}>
                     <Text style={{ fontSize: 15, color: "white", textAlign: 'center', fontFamily: "Roboto-Medium", }}>View cart</Text>
                     <Text style={{ fontSize: 14, color: "white", textAlign: 'center', fontFamily: "Roboto-Light" }}>3 Items</Text>
@@ -142,8 +142,20 @@ const PoojaTypeScreen = () => {
                 <View style={{ backgroundColor: '#A8A8A8', borderRadius: 20, padding: 2, width: 40, height: 40 }}>
                     <Image source={require('../../../assets/icons/Home/arrow.png')} resizeMode='contain' style={{ width: "100%", height: "100%", tintColor: "white", transform: [{ rotate: '270deg' }] }} />
                 </View>
-
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+            {Object.values(cartCounts).reduce((acc, count) => acc + count, 0) > 0 && (
+                <TouchableOpacity onPress={handleCartClick} style={{ flexDirection: 'row', alignItems: "center", justifyContent: "space-between", alignSelf: 'center', padding: 5, width: "40%", backgroundColor: "white", borderRadius: 30, position: 'absolute', bottom: 20 }}>
+                    <View style={{ padding: 5, justifyContent: "flex-start", alignItems: "flex-start", marginStart: 10 }}>
+                        <Text style={{ fontSize: 15, color: "black", textAlign: 'center', fontFamily: "Roboto-Bold" }}>View cart</Text>
+                        <Text style={{ fontSize: 14, color: "black", textAlign: 'center', fontFamily: "Roboto-Medium" }}>
+                            {Object.values(cartCounts).reduce((acc, count) => acc + count, 0)} Items
+                        </Text>
+                    </View>
+                    <View style={{ backgroundColor: '#A8A8A8', borderRadius: 20, padding: 2, width: 40, height: 40 }}>
+                        <Image source={require('../../../assets/icons/Home/arrow.png')} resizeMode='contain' style={{ width: "100%", height: "100%", tintColor: "white", transform: [{ rotate: '270deg' }] }} />
+                    </View>
+                </TouchableOpacity>
+            )}
 
         </SafeAreaView>
     );

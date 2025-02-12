@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList, ImageBackground, Animated, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList, ImageBackground, Animated, StatusBar, SafeAreaView } from 'react-native';
 import { ScrollView, Image } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import axiosInstance from '../../../api/ApiManager';
 import AddAddressSheet from '../Profile/components/AddAddressSheet';
@@ -163,7 +162,7 @@ const HomeScreen = () => {
                         const data = snapshot.val();
                         const addressList = Object.keys(data).map(key => data[key]);
                         setAddresses(addressList);
-                        console.log('address', addressList);
+                        // console.log('address', addressList);
                     } else {
                         setAddresses([]);
                     }
@@ -181,7 +180,7 @@ const HomeScreen = () => {
         const fetchData = async () => {
             try {
                 const response = await axiosInstance.get('hawan_category.json');
-                console.log('hawan_categoryResponse:', response.data);
+                // console.log('hawan_categoryResponse:', response.data);
                 const transformedData = response.data.map((item, index) => ({
                     id: index.toString(),
                     title: item,

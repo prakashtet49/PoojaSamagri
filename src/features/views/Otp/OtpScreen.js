@@ -71,9 +71,9 @@ const OtpScreen = () => {
                 // Verify the OTP entered by the user
                 if (confirmation) {
                     await confirmation.confirm(enteredOtp);  // Firebase OTP confirmation
-                    setTimeout(() => {
-                        Alert.alert("Success", "OTP verified successfully!");
-                    }, [1000]);
+                    // setTimeout(() => {
+                    //     Alert.alert("Success", "OTP verified successfully!");
+                    // }, [1000]);
                     navigation.navigate('HOME');
                 }
             } catch (error) {
