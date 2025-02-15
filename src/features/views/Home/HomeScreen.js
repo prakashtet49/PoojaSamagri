@@ -22,6 +22,7 @@ const HomeScreen = () => {
     const [selectedId, setSelectedId] = useState(horizontalData[0]);
     const [poojaCategoryData, setPoojaCategoryData] = useState([]);
     const [productCategoryData, setProductCategoryData] = useState([]);
+    const [productCategoryResponse, setProductCategoryResponse] = useState([]);
     const [addressBtmSheetVisible, setaddressBtmSheetVisible] = useState(false);
     const [addresses, setAddresses] = useState([]);
 
@@ -117,8 +118,12 @@ const HomeScreen = () => {
     };
 
     const handleAllPoojaCategories = () => {
-        navigation.navigate("POOJACATEGORY", { productCategoryData: productCategoryData, screenName: "Select Pooja Category" });
+        navigation.navigate("POOJACATEGORY", { selectedCategory: null, categoryData: productCategoryResponse, screenName: "Select Pooja Category" });
     };
+
+    const handleProdItemPress = (selectedCategory) => {
+        navigation.navigate('POOJACATEGORY', { selectedCategory: selectedCategory.id, categoryData: productCategoryResponse, screenName: "Select Pooja Category" });
+    }
 
     const handleAddtoCart = () => {
         navigation.navigate("ADDTOCART");
@@ -218,10 +223,11 @@ const HomeScreen = () => {
             try {
                 const response = await axiosInstance.get('prod_category.json');
                 // console.log(' prod_category Response:', response.data);
+                setProductCategoryResponse(response.data);
 
                 const transformedData = Object.keys(response.data).map((key, index) => ({
                     id: index.toString(),
-                    text: key,
+                    text: key.replace(/_/g, ' '),
                     image: staticImage,
                 }));
                 setProductCategoryData(transformedData);
@@ -374,7 +380,7 @@ const HomeScreen = () => {
                             </View>
 
                             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, }}>
-                                {poojaCategoryData.slice(3).map((item, index) => (
+                                {poojaCategoryData.slice(3, 6).map((item, index) => (
                                     <PoojaTypeItemCard
                                         key={index + 3}
                                         imageSource={item.image}
@@ -402,18 +408,18 @@ const HomeScreen = () => {
                                         key={index}
                                         imageSource={item.image}
                                         text={item.text}
-                                        onPress={() => handleItemPress(item.text)}
+                                        onPress={() => handleProdItemPress(item)}
                                     />
                                 ))}
                             </View>
 
                             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, marginBottom: 10, }}>
-                                {productCategoryData.slice(3).map((item, index) => (
+                                {productCategoryData.slice(3, 6).map((item, index) => (
                                     <ItemCard
                                         key={index + 3}
                                         imageSource={item.image}
                                         text={item.text}
-                                        onPress={() => handleItemPress(item.text)}
+                                        onPress={() => handleProdItemPress(item)}
                                     />
                                 ))}
                             </View>
