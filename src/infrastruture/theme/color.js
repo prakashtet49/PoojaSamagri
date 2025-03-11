@@ -4,7 +4,8 @@ const Color = {
     primary_orange: '#FAEDCD',
     primary_blue: '#C5E1FD',
 
-    orange: '#FFB617'
+    orange: '#FFB617',
+    profile_blue: "#2C5364"
 };
 
 export default Color;

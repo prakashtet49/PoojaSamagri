@@ -45,15 +45,15 @@ const MyOrdersScreen = () => {
                         style={{ width: 30, height: 30 }}
                     />
                 </TouchableOpacity>
-                <Text style={{ fontSize: 18, fontFamily: "Roboto-Medium", textAlign: 'center', paddingHorizontal: 20 }}>Your Orders</Text>
+                <Text style={{ fontSize: 18, fontFamily: "Roboto-Medium", textAlign: 'center', paddingHorizontal: 20 }}>My Orders</Text>
             </View>
 
-            <FlatList style={{ flex: 1 }}
+            {/* <FlatList style={{ flex: 1 }}
                 data={data}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={{ padding: 10 }}
-            />
+            /> */}
 
             <FlatList style={{ flex: 1 }}
                 data={data}

@@ -37,7 +37,7 @@ const MyOrderMultipleListItem = ({ item }) => {
                         <Text style={{ fontSize: 16, fontFamily: 'Roboto-Bold', color: "black" }}>{item.price}</Text>
                         <Text style={{ fontSize: 14, fontFamily: 'Roboto-Regular', color: "black" }}>Additional Info</Text>
                     </View>
-                    <TouchableOpacity onPress={() => onAddToCart(item.id)} style={{ backgroundColor: Color.primary_blue, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 5, flexShrink: 1 }} >
+                    <TouchableOpacity style={{ backgroundColor: Color.primary_blue, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 5, flexShrink: 1 }} >
                         <Text style={{ fontSize: 15, fontFamily: 'Roboto-Medium', color: 'black', textAlign: 'center' }}>Buy Again</Text>
                     </TouchableOpacity>
                 </View>

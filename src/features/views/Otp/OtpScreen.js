@@ -103,7 +103,7 @@ const OtpScreen = () => {
     };
 
     const handleRetry = () => {
-        setOtp(["", "", "", "", "",""]);
+        setOtp(["", "", "", "", "", ""]);
         setIsButtonEnabled(false);
         inputRefs.current[0]?.focus();
         sendOtp();
@@ -155,7 +155,7 @@ const OtpScreen = () => {
                             Retry {retryDisabled ? `(${retryTimer}s)` : ""}
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleVerifyOtp()} disabled={!isButtonEnabled} style={{ alignSelf: 'center', alignItems: "center", backgroundColor: "gray", borderRadius: 12, padding: 15, }}>
+                    <TouchableOpacity onPress={() => handleVerifyOtp()} disabled={!isButtonEnabled} style={{ alignSelf: 'center', alignItems: "center", backgroundColor: isButtonEnabled ? Color.orange : Color.primary_orange, borderRadius: 12, padding: 15, }}>
                         <Text style={{ color: "white", fontFamily: 'Roboto-Bold', fontSize: 16, marginStart: 40, marginEnd: 40 }}>
                             {"Verify and Proceed"}
                         </Text>

@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView, Dimensions, To
 import Color from '../../../infrastruture/theme/color';
 import AddAddressSheet from './components/AddAddressSheet';
 import auth from '@react-native-firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = () => {
 
@@ -30,6 +31,7 @@ const ProfileScreen = () => {
     const handleLogout = async () => {
         try {
             await auth().signOut();
+            AsyncStorage.clear();
             navigation.reset({
                 index: 0,
                 routes: [{ name: 'LOGIN' }],
@@ -60,7 +62,7 @@ const ProfileScreen = () => {
     const fetchUserData = async () => {
         const currentUser = auth().currentUser;
         if (currentUser) {
-            await currentUser.reload(); 
+            await currentUser.reload();
             setUser(auth().currentUser);
         }
     };
@@ -79,7 +81,7 @@ const ProfileScreen = () => {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-            <StatusBar backgroundColor="#213C45" />
+            <StatusBar backgroundColor={Color.profile_blue} />
 
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
 
@@ -96,7 +98,7 @@ const ProfileScreen = () => {
                     <View style={{ flex: 1 }} />
                 </View> */}
 
-                <View style={{ alignItems: 'center', borderBottomRightRadius: 35, borderBottomLeftRadius: 35, backgroundColor: "#2C5364", shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5, }}>
+                <View style={{ alignItems: 'center', borderBottomRightRadius: 35, borderBottomLeftRadius: 35, backgroundColor: Color.profile_blue, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5, }}>
                     <TouchableOpacity onPress={() => navigatetoHome()} style={{ flex: 1, alignSelf: 'flex-start', padding: 10, marginHorizontal: 20 }} >
                         <Text>
                             <Image
@@ -114,9 +116,9 @@ const ProfileScreen = () => {
                             <Text style={{ fontSize: 20, color: "white", fontFamily: 'Roboto-Medium' }}>45234 567 890</Text>
                         </View> */}
                         <View style={{ flexDirection: "column", marginHorizontal: 10, justifyContent: "flex-start" }}>
-                            <TouchableOpacity style={{flexDirection:"row", alignItems:"center"}} onPress={() => setIsModalVisible(true)}>
+                            <TouchableOpacity style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsModalVisible(true)}>
                                 <Text style={{ fontSize: 24, color: "white", fontFamily: "Roboto-Medium" }}>{user?.displayName ? user.displayName : "Add Name"}</Text>
-                                <Image source={require('../../../assets/icons/Profile/edit.png')} style={{ width: 15, height: 15, tintColor: 'white', marginStart:20 }} />
+                                <Image source={require('../../../assets/icons/Profile/edit.png')} style={{ width: 15, height: 15, tintColor: 'white', marginStart: 20 }} />
                             </TouchableOpacity>
 
                             <Text style={{ fontSize: 20, color: "white", fontFamily: "Roboto-Medium" }}>{user?.phoneNumber || "Add Phone Number"}</Text>
@@ -134,7 +136,7 @@ const ProfileScreen = () => {
                                             value={name}
                                             onChangeText={setName}
                                             placeholder="Enter Name"
-                                            style={{ width: "100%", borderWidth: 1,fontFamily:"Roboto-Medium",fontSize:20, borderColor: "#ccc", borderRadius: 5, padding: 10, marginBottom: 10, }}
+                                            style={{ width: "100%", borderWidth: 1, fontFamily: "Roboto-Medium", fontSize: 20, borderColor: "#ccc", borderRadius: 5, padding: 10, marginBottom: 10, }}
                                         />
                                         <View style={{ flexDirection: "row", justifyContent: "space-between", width: "100%", }}>
                                             <Button title="Cancel" onPress={() => setIsModalVisible(false)} color="red" />

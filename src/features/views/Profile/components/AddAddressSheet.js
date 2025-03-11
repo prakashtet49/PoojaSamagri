@@ -1,4 +1,4 @@
-import { FlatList, Image, Modal, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, FlatList, Image, Modal, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Color from '../../../../infrastruture/theme/color';
 import { useNavigation } from '@react-navigation/native';
@@ -45,13 +45,80 @@ const AddAddressSheet = ({ visible, close }) => {
         fetchAddresses();
     }, []);
 
+    const handleAddressSelected = async (selectedItem) => {
+        try {
+            await AsyncStorage.setItem('SELECTEDADDRESS', JSON.stringify(selectedItem));
+            close();
+        } catch (error) {
+            console.error('Error saving address:', error);
+        }
+    };
+
+    const handleDeleteAddress = (addressToDelete) => {
+        Alert.alert(
+            "Delete Address",
+            "Are you sure you want to delete this address?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Confirm",
+                    onPress: async () => {
+                        try {
+                            const user = auth().currentUser;
+                            if (!user) {
+                                Alert.alert('Error', 'User not authenticated.');
+                                return;
+                            }
+
+                            const userId = user.uid;
+                            const addressesRef = database().ref(`/users/${userId}/addresses`);
+
+                            // Fetch addresses again to find the correct key to delete
+                            addressesRef.once('value', async (snapshot) => {
+                                if (snapshot.exists()) {
+                                    const data = snapshot.val();
+                                    const addressKey = Object.keys(data).find(
+                                        key => JSON.stringify(data[key]) === JSON.stringify(addressToDelete)
+                                    );
+
+                                    if (addressKey) {
+                                        await database().ref(`/users/${userId}/addresses/${addressKey}`).remove();
+
+                                        // Update local state
+                                        setAddresses(prevAddresses => prevAddresses.filter(addr => addr !== addressToDelete));
+
+                                        // Check if the deleted address was the selected one and remove it from AsyncStorage
+                                        const storedAddress = await AsyncStorage.getItem('SELECTEDADDRESS');
+                                        if (storedAddress && JSON.stringify(addressToDelete) === storedAddress) {
+                                            await AsyncStorage.removeItem('SELECTEDADDRESS');
+                                        }
+                                    }
+                                }
+                            });
+                        } catch (error) {
+                            console.error('Error deleting address:', error);
+                            Alert.alert('Error', 'There was an issue deleting the address.');
+                        }
+                    },
+                    style: "destructive",
+                }
+            ]
+        );
+    };
+
     const addressItem = ({ item }) => (
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', flexWrap: "wrap",}}>
-            <Image resizeMode='contain' source={require('../../../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
-            <Text style={{ fontSize: 15, fontFamily: 'Roboto-Medium', color: "black", flexWrap: "wrap", flex: 1 }} numberOfLines={2} ellipsizeMode="tail">
-                {item.flatNumber}, {item.area},{item.landmark}, {item.townCity}, {item.state}, {item.pincode}
-            </Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: "wrap", justifyContent: 'space-between' }}>
+            <TouchableOpacity onPress={() => handleAddressSelected(item)} style={{ flexDirection: 'row', alignItems: 'center', flexWrap: "wrap", flex: 1 }}>
+                <Image resizeMode='contain' source={require('../../../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
+                <Text style={{ fontSize: 15, fontFamily: 'Roboto-Medium', color: "black", flexWrap: "wrap", flex: 1 }} numberOfLines={2} ellipsizeMode="tail">
+                    {item.flatNumber}, {item.area}, {item.landmark}, {item.townCity}, {item.state}, {item.pincode}
+                </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => handleDeleteAddress(item)}>
+                <Image resizeMode='contain' source={require('../../../../assets/icons/Profile/delete.png')} style={{ width: 25, height: 25, marginLeft: 10 }} />
+            </TouchableOpacity>
+        </View>
     );
 
     return (

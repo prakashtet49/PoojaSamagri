@@ -5,6 +5,7 @@ import PoojaTypeListItem from '../PoojaType/components/PoojaTypeListItem';
 import Color from '../../../infrastruture/theme/color';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PoojaCategoryScreen = () => {
     const navigation = useNavigation();
@@ -38,90 +39,90 @@ const PoojaCategoryScreen = () => {
 
     const handleCategoryPress = (id) => setSelectedIndex(id);
 
-    // const handleAddToCart = (uniqueKey) => {
-    //     setCartCounts((prevCounts) => ({
-    //         ...prevCounts,
-    //         [uniqueKey]: 1,
-    //     }));
-    // };
-
-    // const handleIncrease = (uniqueKey) => {
-    //     setCartCounts((prevCounts) => ({
-    //         ...prevCounts,
-    //         [uniqueKey]: (prevCounts[uniqueKey] || 0) + 1,
-    //     }));
-    // };
-
-    // const handleDecrease = (uniqueKey) => {
-    //     setCartCounts((prevCounts) => {
-    //         const newCount = (prevCounts[uniqueKey] || 0) - 1;
-    //         if (newCount <= 0) {
-    //             const updatedCounts = { ...prevCounts };
-    //             delete updatedCounts[uniqueKey];
-    //             return updatedCounts;
-    //         }
-    //         return { ...prevCounts, [uniqueKey]: newCount };
-    //     });
-    // };
-
-
-    const user = auth.currentUser;
-
-    useEffect(() => {
-        if (user) {
-            fetchCartData();
-        }
-    }, [user]);
-
-    const fetchCartData = async () => {
-        if (user) {
-            const cartRef = ref(database, `users/${user.uid}/cart`);
-            try {
-                const snapshot = await get(cartRef);
-                if (snapshot.exists()) {
-                    setCartCounts(snapshot.val());
-                }
-            } catch (error) {
-                console.error("Error fetching cart data:", error);
-            }
-        }
-    };
-
-    const saveCartData = async (updatedCart) => {
-        if (user) {
-            const cartRef = ref(database, `users/${user.uid}/cart`);
-            await set(cartRef, updatedCart);
-        }
-    };
-
     const handleAddToCart = (uniqueKey) => {
-        const updatedCart = {
-            ...cartCounts,
-            [uniqueKey]: (cartCounts[uniqueKey] || 0) + 1
-        };
-        setCartCounts(updatedCart);
-        saveCartData(updatedCart);
+        setCartCounts((prevCounts) => ({
+            ...prevCounts,
+            [uniqueKey]: 1,
+        }));
     };
 
     const handleIncrease = (uniqueKey) => {
-        const updatedCart = {
-            ...cartCounts,
-            [uniqueKey]: (cartCounts[uniqueKey] || 0) + 1
-        };
-        setCartCounts(updatedCart);
-        saveCartData(updatedCart);
+        setCartCounts((prevCounts) => ({
+            ...prevCounts,
+            [uniqueKey]: (prevCounts[uniqueKey] || 0) + 1,
+        }));
     };
 
     const handleDecrease = (uniqueKey) => {
-        const updatedCart = { ...cartCounts };
-        if (updatedCart[uniqueKey] > 1) {
-            updatedCart[uniqueKey] -= 1;
-        } else {
-            delete updatedCart[uniqueKey];
-        }
-        setCartCounts(updatedCart);
-        saveCartData(updatedCart);
+        setCartCounts((prevCounts) => {
+            const newCount = (prevCounts[uniqueKey] || 0) - 1;
+            if (newCount <= 0) {
+                const updatedCounts = { ...prevCounts };
+                delete updatedCounts[uniqueKey];
+                return updatedCounts;
+            }
+            return { ...prevCounts, [uniqueKey]: newCount };
+        });
     };
+
+
+    // const user = auth.currentUser;
+
+    // useEffect(() => {
+    //     if (user) {
+    //         fetchCartData();
+    //     }
+    // }, [user]);
+
+    // const fetchCartData = async () => {
+    //     if (user) {
+    //         const cartRef = ref(database, `users/${user.uid}/cart`);
+    //         try {
+    //             const snapshot = await get(cartRef);
+    //             if (snapshot.exists()) {
+    //                 setCartCounts(snapshot.val());
+    //             }
+    //         } catch (error) {
+    //             console.error("Error fetching cart data:", error);
+    //         }
+    //     }
+    // };
+
+    // const saveCartData = async (updatedCart) => {
+    //     if (user) {
+    //         const cartRef = ref(database, `users/${user.uid}/cart`);
+    //         await set(cartRef, updatedCart);
+    //     }
+    // };
+
+    // const handleAddToCart = (uniqueKey) => {
+    //     const updatedCart = {
+    //         ...cartCounts,
+    //         [uniqueKey]: (cartCounts[uniqueKey] || 0) + 1
+    //     };
+    //     setCartCounts(updatedCart);
+    //     saveCartData(updatedCart);
+    // };
+
+    // const handleIncrease = (uniqueKey) => {
+    //     const updatedCart = {
+    //         ...cartCounts,
+    //         [uniqueKey]: (cartCounts[uniqueKey] || 0) + 1
+    //     };
+    //     setCartCounts(updatedCart);
+    //     saveCartData(updatedCart);
+    // };
+
+    // const handleDecrease = (uniqueKey) => {
+    //     const updatedCart = { ...cartCounts };
+    //     if (updatedCart[uniqueKey] > 1) {
+    //         updatedCart[uniqueKey] -= 1;
+    //     } else {
+    //         delete updatedCart[uniqueKey];
+    //     }
+    //     setCartCounts(updatedCart);
+    //     saveCartData(updatedCart);
+    // };
 
 
 
@@ -141,9 +142,53 @@ const PoojaCategoryScreen = () => {
         );
     };
 
-    const handleCartClick = () => {
-        navigation.navigate("ADDTOCART");
+    // const handleCartClick = () => {
+    //     navigation.navigate("ADDTOCART", { cartData: selectedCategoryData });
+    // };
+
+    const handleCartClick = async () => {
+        try {
+            const cartItems = [];
+    
+            console.log("cartCounts: ", cartCounts);
+            console.log("productCategoryData: ", productCategoryData);
+    
+            Object.keys(cartCounts).forEach((key) => {
+                const lastUnderscoreIndex = key.lastIndexOf("_");
+                const category = key.substring(0, lastUnderscoreIndex); // Extract category
+                const indexStr = key.substring(lastUnderscoreIndex + 1); // Extract index
+                const index = parseInt(indexStr, 10);
+    
+                console.log(`Extracted -> Category: ${category}, Index: ${index}`);
+    
+                if (productCategoryData[category] && !isNaN(index) && productCategoryData[category][index]) {
+                    const item = productCategoryData[category][index];
+                    const count = cartCounts[key];
+    
+                    console.log("Item found:", item, "Count:", count);
+    
+                    if (count > 0) {
+                        cartItems.push({ ...item, count });
+                    }
+                } else {
+                    console.warn(`Skipping key ${key} - category or index not found`);
+                }
+            });
+    
+            console.log("Final cartItems:", cartItems);
+    
+            if (cartItems.length > 0) {
+                await AsyncStorage.setItem("cartData", JSON.stringify(cartItems));
+            }
+    
+            navigation.navigate("ADDTOCART", { cartData: cartItems });
+    
+        } catch (error) {
+            console.error("Error saving cart data:", error);
+        }
     };
+    
+    
 
 
     return (
@@ -179,8 +224,8 @@ const PoojaCategoryScreen = () => {
                         <PoojaTypeListItem
                             item={item}
                             index={index}
-                            category={selectedIndex} 
-                            count={cartCounts[`${selectedIndex}_${index}`] || 0} 
+                            category={selectedIndex}
+                            count={cartCounts[`${selectedIndex}_${index}`] || 0}
                             onAddToCart={handleAddToCart}
                             onIncrease={handleIncrease}
                             onDecrease={handleDecrease}
