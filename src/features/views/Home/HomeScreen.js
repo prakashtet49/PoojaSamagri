@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList, ImageBackground, Animated, StatusBar, SafeAreaView, ActivityIndicator } from 'react-native';
 import { ScrollView, Image } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import axiosInstance from '../../../api/ApiManager';
 import AddAddressSheet from '../Profile/components/AddAddressSheet';
 import auth from '@react-native-firebase/auth';
@@ -26,6 +26,7 @@ const HomeScreen = () => {
     const [productCategoryResponse, setProductCategoryResponse] = useState([]);
     const [addressBtmSheetVisible, setaddressBtmSheetVisible] = useState(false);
     const [loading, setloading] = useState(true);
+    const [cartItems, setCartItems] = useState(0);
 
     const [selectedAddress, setSelectedAddress] = useState(null);
 
@@ -40,13 +41,30 @@ const HomeScreen = () => {
                     setSelectedAddress(null);
                 }
             } catch (error) {
-                console.error('Error fetching selected address:', error);
+                console.log('Error fetching selected address:', error);
             }
         };
 
         fetchSelectedAddress();
     }, [addressBtmSheetVisible]);
 
+    useFocusEffect(
+        useCallback(() => {
+            const loadCartData = async () => {
+                try {
+                    const savedCartData = await AsyncStorage.getItem("cartCounts");
+                    if (savedCartData) {
+                        const parsedCartData = JSON.parse(savedCartData);
+                        const totalItemCount = Object.values(parsedCartData).reduce((sum, count) => sum + count, 0);
+                        setCartItems(totalItemCount);
+                    }
+                } catch (error) {
+                    console.log("Error loading cart data:", error);
+                }
+            };
+            loadCartData();
+        }, [])
+    );
 
     const onScroll = (event) => {
         const index = Math.round(event.nativeEvent.contentOffset.x / width);
@@ -319,7 +337,15 @@ const HomeScreen = () => {
                                         </View>
 
                                         <TouchableOpacity onPress={() => handleAddtoCart()} style={{ marginLeft: 10 }}>
-                                            <Image source={require('../../../assets/icons/Home/cart.png')} style={{ width: 30, height: 30, tintColor: "white" }} />
+                                            <View style={{ position: 'relative' }}>
+                                                <Image source={require('../../../assets/icons/Home/cart.png')} style={{ width: 30, height: 30, tintColor: "white" }} />
+                                                {cartItems > 0 && (
+                                                    <View style={{ position: 'absolute', top: -5, right: -5, backgroundColor: 'red', width: 18, height: 18, borderRadius: 9, justifyContent: 'center', alignItems: 'center', }}>
+                                                        <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>{cartItems}</Text>
+                                                    </View>
+                                                )}
+
+                                            </View>
                                         </TouchableOpacity>
 
                                     </View>
@@ -381,7 +407,7 @@ const HomeScreen = () => {
                                 <View style={{ flex: 1, backgroundColor: "white", alignItems: 'center', borderBottomRightRadius: 50, borderBottomLeftRadius: 50, shadowColor: "#d9d9d9", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 5, elevation: 8, }}>
 
                                     <View style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 5, marginStart: 10, marginEnd: 10, marginTop: 5, padding: 10 }}>
-                                        <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, marginRight: 4, flex: 1, }}>Explore Pooja Types</Text>
+                                        <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, marginRight: 4, flex: 1, }}>Explore Pooja Items</Text>
                                         <TouchableOpacity onPress={() => handleAllPoojaTypes()} style={{ flexDirection: "row", alignItems: "center", }}>
                                             <Text style={{ color: "darkblue", fontFamily: 'Roboto-Bold', fontSize: 16, }}>view all</Text>
                                             <Image source={require('../../../assets/icons/Home/arrow.png')} resizeMode='contain' style={{ width: 22, height: 22, tintColor: "darkblue", transform: [{ rotate: '270deg' }] }} />

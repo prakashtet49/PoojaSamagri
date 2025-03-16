@@ -1,5 +1,5 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
 import { SafeAreaView, View, Text, FlatList, TouchableOpacity, Image, Dimensions } from 'react-native';
 import PoojaTypeListItem from '../PoojaType/components/PoojaTypeListItem';
 import Color from '../../../infrastruture/theme/color';
@@ -39,18 +39,45 @@ const PoojaCategoryScreen = () => {
 
     const handleCategoryPress = (id) => setSelectedIndex(id);
 
+    useFocusEffect(
+        useCallback(() => {
+            const loadCartData = async () => {
+                try {
+                    const savedCart = await AsyncStorage.getItem("cartCounts");
+                    if (savedCart) {
+                        setCartCounts(JSON.parse(savedCart));
+                    }
+                } catch (error) {
+                    console.log("Error loading cart data:", error);
+                }
+            };
+            loadCartData();
+        }, [])
+    );
+
+    const saveCartData = async (newCartCounts) => {
+        try {
+            await AsyncStorage.setItem("cartCounts", JSON.stringify(newCartCounts));
+        } catch (error) {
+            console.log("Error saving cart data:", error);
+        }
+    };
+
+
     const handleAddToCart = (uniqueKey) => {
-        setCartCounts((prevCounts) => ({
-            ...prevCounts,
-            [uniqueKey]: 1,
-        }));
+        setCartCounts((prevCounts) => {
+            const updatedCounts = { ...prevCounts, [uniqueKey]: 1 };
+            saveCartData(updatedCounts);
+            return updatedCounts;
+        });
     };
 
     const handleIncrease = (uniqueKey) => {
-        setCartCounts((prevCounts) => ({
-            ...prevCounts,
-            [uniqueKey]: (prevCounts[uniqueKey] || 0) + 1,
-        }));
+        setCartCounts((prevCounts) => {
+            const updatedCounts = { ...prevCounts, [uniqueKey]: (prevCounts[uniqueKey] || 0) + 1 };
+            saveCartData(updatedCounts);
+            return updatedCounts;
+        });
     };
 
     const handleDecrease = (uniqueKey) => {
@@ -59,73 +86,14 @@ const PoojaCategoryScreen = () => {
             if (newCount <= 0) {
                 const updatedCounts = { ...prevCounts };
                 delete updatedCounts[uniqueKey];
+                saveCartData(updatedCounts);
                 return updatedCounts;
             }
-            return { ...prevCounts, [uniqueKey]: newCount };
+            const updatedCounts = { ...prevCounts, [uniqueKey]: newCount };
+            saveCartData(updatedCounts);
+            return updatedCounts;
         });
     };
-
-
-    // const user = auth.currentUser;
-
-    // useEffect(() => {
-    //     if (user) {
-    //         fetchCartData();
-    //     }
-    // }, [user]);
-
-    // const fetchCartData = async () => {
-    //     if (user) {
-    //         const cartRef = ref(database, `users/${user.uid}/cart`);
-    //         try {
-    //             const snapshot = await get(cartRef);
-    //             if (snapshot.exists()) {
-    //                 setCartCounts(snapshot.val());
-    //             }
-    //         } catch (error) {
-    //             console.error("Error fetching cart data:", error);
-    //         }
-    //     }
-    // };
-
-    // const saveCartData = async (updatedCart) => {
-    //     if (user) {
-    //         const cartRef = ref(database, `users/${user.uid}/cart`);
-    //         await set(cartRef, updatedCart);
-    //     }
-    // };
-
-    // const handleAddToCart = (uniqueKey) => {
-    //     const updatedCart = {
-    //         ...cartCounts,
-    //         [uniqueKey]: (cartCounts[uniqueKey] || 0) + 1
-    //     };
-    //     setCartCounts(updatedCart);
-    //     saveCartData(updatedCart);
-    // };
-
-    // const handleIncrease = (uniqueKey) => {
-    //     const updatedCart = {
-    //         ...cartCounts,
-    //         [uniqueKey]: (cartCounts[uniqueKey] || 0) + 1
-    //     };
-    //     setCartCounts(updatedCart);
-    //     saveCartData(updatedCart);
-    // };
-
-    // const handleDecrease = (uniqueKey) => {
-    //     const updatedCart = { ...cartCounts };
-    //     if (updatedCart[uniqueKey] > 1) {
-    //         updatedCart[uniqueKey] -= 1;
-    //     } else {
-    //         delete updatedCart[uniqueKey];
-    //     }
-    //     setCartCounts(updatedCart);
-    //     saveCartData(updatedCart);
-    // };
-
-
-
 
     const renderHorizontalItem = ({ item }) => {
         const isSelected = selectedIndex === item.id;
@@ -141,10 +109,6 @@ const PoojaCategoryScreen = () => {
             </TouchableOpacity>
         );
     };
-
-    // const handleCartClick = () => {
-    //     navigation.navigate("ADDTOCART", { cartData: selectedCategoryData });
-    // };
 
     const handleCartClick = async () => {
         try {
