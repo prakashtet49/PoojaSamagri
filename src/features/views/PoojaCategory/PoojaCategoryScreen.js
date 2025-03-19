@@ -28,11 +28,19 @@ const PoojaCategoryScreen = () => {
     const itemWidth2 = width / numColumns - 120;
 
     const staticImage = require('../../../assets/icons/Home/laxmidevi_pic.png');
+    const staticPoojaCategory = [
+        require('../../../assets/icons/Home/antim_sansakar_samagri.jpg'),
+        require('../../../assets/icons/PoojaCategory/bartan_samagri.jpg'),
+        require('../../../assets/icons/PoojaCategory/frame_n_murti.jpg'),
+        require('../../../assets/icons/PoojaCategory/gems_n_yantra.jpg'),
+        require('../../../assets/icons/PoojaCategory/hawan_samagri.jpg'),
+        require('../../../assets/icons/PoojaCategory/aasan_samagri.jpg'),
+    ];
 
     const transformedData = categoryKeys.map((key, index) => ({
         id: key,
         text: key.replace(/_/g, ' '),
-        image: staticImage,
+        image: staticPoojaCategory[index] || staticPoojaCategory[0],
     }));
 
     const selectedCategoryData = productCategoryData[selectedIndex] || [];
@@ -113,24 +121,24 @@ const PoojaCategoryScreen = () => {
     const handleCartClick = async () => {
         try {
             const cartItems = [];
-    
+
             console.log("cartCounts: ", cartCounts);
             console.log("productCategoryData: ", productCategoryData);
-    
+
             Object.keys(cartCounts).forEach((key) => {
                 const lastUnderscoreIndex = key.lastIndexOf("_");
                 const category = key.substring(0, lastUnderscoreIndex); // Extract category
                 const indexStr = key.substring(lastUnderscoreIndex + 1); // Extract index
                 const index = parseInt(indexStr, 10);
-    
+
                 console.log(`Extracted -> Category: ${category}, Index: ${index}`);
-    
+
                 if (productCategoryData[category] && !isNaN(index) && productCategoryData[category][index]) {
                     const item = productCategoryData[category][index];
                     const count = cartCounts[key];
-    
+
                     console.log("Item found:", item, "Count:", count);
-    
+
                     if (count > 0) {
                         cartItems.push({ ...item, count });
                     }
@@ -138,21 +146,21 @@ const PoojaCategoryScreen = () => {
                     console.warn(`Skipping key ${key} - category or index not found`);
                 }
             });
-    
+
             console.log("Final cartItems:", cartItems);
-    
+
             if (cartItems.length > 0) {
                 await AsyncStorage.setItem("cartData", JSON.stringify(cartItems));
             }
-    
+
             navigation.navigate("ADDTOCART", { cartData: cartItems });
-    
+
         } catch (error) {
             console.error("Error saving cart data:", error);
         }
     };
-    
-    
+
+
 
 
     return (

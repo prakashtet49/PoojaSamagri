@@ -131,8 +131,8 @@ const HomeScreen = () => {
 
     const PoojaTypeItemCard = ({ imageSource, text, onPress }) => (
         <TouchableOpacity onPress={onPress} style={{ width: '30%', alignItems: 'center', margin: 10 }} >
-            <View style={{ backgroundColor: Color.primary_blue, borderRadius: 10, padding: 8, justifyContent: 'center', alignItems: 'center', width: '100%', height: 100 }}>
-                <Image source={imageSource} style={{ width: "100%", height: "100%", resizeMode: 'contain' }} />
+            <View style={{ overflow: 'hidden', backgroundColor: Color.primary_blue, borderRadius: 10, justifyContent: 'center', alignItems: 'center', width: '100%', height: 100 }}>
+                <Image source={imageSource} style={{ width: "100%", height: "100%", resizeMode: "stretch", borderRadius: 10 }} />
             </View>
             <Text style={{ textAlign: 'center', fontSize: 10, fontFamily: "Roboto-Bold", flexWrap: 'wrap', color: "black", }} numberOfLines={2} ellipsizeMode="tail">{text}</Text>
         </TouchableOpacity>
@@ -141,8 +141,8 @@ const HomeScreen = () => {
 
     const ItemCard = ({ imageSource, text, onPress }) => (
         <TouchableOpacity onPress={onPress} style={{ width: '30%', alignItems: 'center', margin: 10 }} >
-            <View style={{ backgroundColor: Color.primary_orange, borderRadius: 10, padding: 8, justifyContent: 'center', alignItems: 'center', width: '100%', height: 100 }}>
-                <Image source={imageSource} style={{ width: "100%", height: "100%", resizeMode: 'contain' }} />
+            <View style={{ overflow: "hidden", borderRadius: 10, justifyContent: 'center', alignItems: 'center', width: '100%', height: 100 }}>
+                <Image source={imageSource} style={{ width: "100%", height: "100%", resizeMode: "stretch", borderRadius: 15, borderColor: Color.primary_grey, borderWidth: 1 }} />
             </View>
             <Text style={{ textAlign: 'center', fontSize: 10, fontFamily: "Roboto-Bold", flexWrap: 'wrap', color: "black", }} numberOfLines={2} ellipsizeMode="tail">{text}</Text>
         </TouchableOpacity>
@@ -194,6 +194,37 @@ const HomeScreen = () => {
     }, [textIndex]);
 
     const staticImage = require('../../../assets/icons/Home/laxmidevi_pic.png');
+    const staticImagesHawan = [
+        require('../../../assets/icons/hawan/ayush_homam_img.jpg'),
+        require('../../../assets/icons/Home/laxmidevi_pic.png'),
+        require('../../../assets/icons/hawan/tila_homam_img.jpg'),
+        require('../../../assets/icons/hawan/ganpathi_homam_img.jpg'),
+        require('../../../assets/icons/hawan/maha_ganapathy_homam_img.jpg'),
+        require('../../../assets/icons/hawan/sudarshan_homam_img.jpg'),
+        require('../../../assets/icons/hawan/navagraha_homam_img.jpg'),
+        require('../../../assets/icons/hawan/udyapan_vrat_pooja_img.jpg'),
+        require('../../../assets/icons/hawan/shani_pooja_img.jpeg'),
+        require('../../../assets/icons/Home/laxmidevi_pic.png'),
+        require('../../../assets/icons/Home/laxmidevi_pic.png')
+    ];
+
+    const staticImagesItems = [
+        require('../../../assets/icons/poojaItems/rudrabhishek_img.jpg'),
+        require('../../../assets/icons/poojaItems/vivah_img.jpg'),
+        require('../../../assets/icons/Home/laxmidevi_pic.png'),
+        require('../../../assets/icons/poojaItems/ganesh_chaturthi_img.jpg'),
+        require('../../../assets/icons/poojaItems/rudrabhishek_img.jpg'),
+        require('../../../assets/icons/poojaItems/gauri_ganesh_poojan_img.jpg'),
+    ];
+
+    const staticPoojaCategory = [
+        require('../../../assets/icons/Home/antim_sansakar_samagri.jpg'),
+        require('../../../assets/icons/PoojaCategory/bartan_samagri.jpg'),
+        require('../../../assets/icons/PoojaCategory/frame_n_murti.jpg'),
+        require('../../../assets/icons/PoojaCategory/gems_n_yantra.jpg'),
+        require('../../../assets/icons/PoojaCategory/hawan_samagri.jpg'),
+        require('../../../assets/icons/PoojaCategory/aasan_samagri.jpg'),
+    ];
 
     useEffect(() => {
         const fetchData = async () => {
@@ -203,7 +234,8 @@ const HomeScreen = () => {
                 const transformedData = response.data.map((item, index) => ({
                     id: index.toString(),
                     title: item,
-                    image: staticImage,
+                    // image: staticImage,
+                    image: staticImagesHawan[index] || staticImagesHawan[10],
                 }));
                 setHorizontalData(transformedData);
                 // setloading(false);
@@ -223,7 +255,7 @@ const HomeScreen = () => {
                 const transformedData = response.data.map((item, index) => ({
                     id: index.toString(),
                     text: item,
-                    image: staticImage,
+                    image: staticImagesItems[index] || staticImagesItems[0],
                 }));
                 setPoojaCategoryData(transformedData);
                 // setloading(false);
@@ -247,7 +279,7 @@ const HomeScreen = () => {
                 const transformedData = Object.keys(response.data).map((key, index) => ({
                     id: index.toString(),
                     text: key.replace(/_/g, ' '),
-                    image: staticImage,
+                    image: staticPoojaCategory[index] || staticPoojaCategory[0],
                 }));
                 setProductCategoryData(transformedData);
                 // setloading(false);
@@ -260,6 +292,9 @@ const HomeScreen = () => {
         fetchData();
     }, []);
 
+    const antimCardClick = (productCategoryData) => {
+        navigation.navigate('POOJACATEGORY', { selectedCategory: 0, categoryData: productCategoryResponse, screenName: "Select Pooja Category" });
+    };
 
     const numColumns = 2;
 
@@ -270,8 +305,8 @@ const HomeScreen = () => {
         const isSelected = selectedId === item.id;
         return (
             <TouchableOpacity onPress={() => setSelectedId(item.id)} style={{ marginHorizontal: 10, alignItems: 'center', }}>
-                <View style={{ width: itemWidth2, height: itemWidth2, backgroundColor: isSelected ? Color.primary_blue : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 8, borderWidth: isSelected ? 1 : 0, borderColor: isSelected ? 'white' : 'transparent', }}>
-                    <Image source={item.image} style={{ width: '80%', height: '80%', resizeMode: 'contain' }} />
+                <View style={{ width: itemWidth2, height: itemWidth2, backgroundColor: isSelected ? Color.primary_blue : 'white', justifyContent: "center", alignItems: 'center', borderRadius: 4, borderWidth: isSelected ? 1 : 0, borderColor: isSelected ? 'white' : 'transparent', }}>
+                    <Image source={item.image} style={{ width: '100%', height: '100%', resizeMode: "stretch" }} />
                 </View>
                 <Text style={{ marginTop: 5, fontSize: 10, fontFamily: "Roboto-Medium", color: "white", textAlign: 'center', flexWrap: 'wrap', width: itemWidth2 }} numberOfLines={2}>
                     {item.title}
@@ -396,6 +431,12 @@ const HomeScreen = () => {
                                     />
                                 </View>
 
+                                <TouchableOpacity onPress={() => { antimCardClick(productCategoryData) }} style={{ flexDirection: 'row', alignItems: 'center', padding: 5, backgroundColor: 'white', borderRadius: 10, marginStart: 15, marginBottom: 15, marginEnd: 15, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 }}>
+                                    <Image source={require('../../../assets/icons/Home/antim_sansakar_samagri.jpg')} style={{ width: 40, height: 40, borderRadius: 20 }} />
+                                    <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, fontFamily: "Roboto-Medium", color: 'black' }}>Antim Sanskar Samagri</Text>
+                                    <Image source={require('../../../assets/icons/Profile/Forward.png')} style={{ width: 30, height: 30 }} />
+                                </TouchableOpacity>
+
                             </View>
 
                             {/* </ImageBackground> */}
@@ -439,7 +480,8 @@ const HomeScreen = () => {
                                 </View>
                                 {/* </ImageBackground> */}
 
-                                <View style={{ flex: 1, alignItems: 'center', borderBottomRightRadius: 50, borderBottomLeftRadius: 50, marginBottom: 20, backgroundColor: "white" }}>
+                                <View style={{ flex: 1, alignItems: 'center', borderBottomRightRadius: 50, borderBottomLeftRadius: 50, marginBottom: 20, backgroundColor: Color.primary_orange}}>
+                                    
                                     <View style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 5, marginStart: 10, marginEnd: 10, padding: 10 }}>
                                         <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, marginRight: 4, flex: 1, }}> Explore Pooja Categories  </Text>
                                         <TouchableOpacity onPress={() => handleAllPoojaCategories()} style={{ flexDirection: "row", alignItems: "center", }}>

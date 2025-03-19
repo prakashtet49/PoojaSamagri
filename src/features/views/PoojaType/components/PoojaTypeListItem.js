@@ -19,9 +19,39 @@ const PoojaTypeListItem = ({ item, index, category, count, onAddToCart, onIncrea
     const [selectedPrice, setSelectedPrice] = useState(priceOptions[0] || '');
     const [selectedQuantity, setSelectedQuantity] = useState(quantityOptions[0] || '');
 
+
+    // src/assets/icons/antimImages/angocha.jpg
+    const imageArray = [
+        require("../../../../assets/icons/antimImages/kewda_jal.jpg"),
+        require("../../../../assets/icons/antimImages/chandan_lakdi.jpg"),
+        require("../../../../assets/icons/antimImages/agarbatti.jpg"),
+        require("../../../../assets/icons/Home/laxmidevi_pic.png"),
+        require("../../../../assets/icons/antimImages/angocha.jpg"),
+        require("../../../../assets/icons/antimImages/baniyan.jpg"),
+        require("../../../../assets/icons/antimImages/batasha.jpg"),
+        require("../../../../assets/icons/antimImages/blouse.jpg"),
+        require("../../../../assets/icons/antimImages/dhoopbatti.jpg"),
+        require("../../../../assets/icons/antimImages/itra.jpg"),
+        require("../../../../assets/icons/antimImages/ganga_jal.jpg"),
+        // require("../../../../assets/icons/Home/image1.png"),
+        // require("../../../../assets/icons/Home/image2.png"),
+        // require("../../../../assets/icons/Home/image3.png"),
+        // require("../../../../assets/icons/Home/image4.png"),
+        // require("../../../../assets/icons/Home/image5.png"),
+        // require("../../../../assets/icons/Home/image6.png"),
+        // require("../../../../assets/icons/Home/image7.png"),
+        // require("../../../../assets/icons/Home/image8.png"),
+        // require("../../../../assets/icons/Home/image9.png"),
+        // require("../../../../assets/icons/Home/image10.png"),
+    ];
+
+    // Select the image based on the index
+    const imageSource = imageArray[index] || imageArray[0];
+
+
     return (
         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'orange', padding: 10, borderRadius: 8, marginBottom: 10, position: 'relative' }}>
-            <Image source={require("../../../../assets/icons/Home/laxmidevi_pic.png")} style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} />
+            <Image source={imageSource} style={{ width: 60, height: 60, borderRadius: 5, marginRight: 10 }} />
             
             <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 16, fontFamily: 'Roboto-Medium', color: 'white' }}>{item.item_name}</Text>
