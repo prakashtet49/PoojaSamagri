@@ -1,6 +1,6 @@
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { SafeAreaView, View, Text, FlatList, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { SafeAreaView, View, Text, FlatList, TouchableOpacity, Image, Dimensions, Alert } from 'react-native';
 import PoojaTypeListItem from '../PoojaType/components/PoojaTypeListItem';
 import Color from '../../../infrastruture/theme/color';
 import auth from '@react-native-firebase/auth';
@@ -49,33 +49,85 @@ const PoojaCategoryScreen = () => {
 
     useFocusEffect(
         useCallback(() => {
-            const loadCartData = async () => {
+            const fetchCartData = async () => {
                 try {
-                    const savedCart = await AsyncStorage.getItem("cartCounts");
-                    if (savedCart) {
-                        setCartCounts(JSON.parse(savedCart));
+                    const user = auth().currentUser;
+                    if (!user) {
+                        console.log("User not logged in");
+                        return;
                     }
+
+                    const cartRef = database().ref(`/users/${user.uid}/cartItems`);
+
+                    cartRef.once("value", (snapshot) => {
+                        if (snapshot.exists()) {
+                            const cartData = snapshot.val();
+                            const formattedCart = {};
+
+                            Object.keys(cartData).forEach((key) => {
+                                formattedCart[key] = cartData[key].count;
+                            });
+
+                            setCartCounts(formattedCart);
+                        } else {
+                            console.log("No cart data found in Firebase");
+                            setCartCounts({});
+                        }
+                    });
                 } catch (error) {
-                    console.log("Error loading cart data:", error);
+                    console.log("Error fetching cart data:", error);
                 }
             };
-            loadCartData();
+
+            fetchCartData();
         }, [])
     );
 
-    const saveCartData = async (newCartCounts) => {
+    const saveCartData = async (uniqueKey, updatedCounts) => {
         try {
-            await AsyncStorage.setItem("cartCounts", JSON.stringify(newCartCounts));
+            const user = auth().currentUser;
+            if (!user) {
+                console.log("User not logged in");
+                return;
+            }
+
+            const cartRef = database().ref(`/users/${user.uid}/cartItems/${uniqueKey}`);
+            const newCount = updatedCounts[uniqueKey] || 0;
+
+            const lastUnderscoreIndex = uniqueKey.lastIndexOf("_");
+            const category = uniqueKey.substring(0, lastUnderscoreIndex);
+            const indexStr = uniqueKey.substring(lastUnderscoreIndex + 1);
+            const index = parseInt(indexStr, 10);
+
+            if (!productCategoryData[category] || isNaN(index) || !productCategoryData[category][index]) {
+                console.warn(`Item not found for key: ${uniqueKey}`);
+                return;
+            }
+
+            const item = productCategoryData[category][index];
+
+            if (newCount <= 0) {
+                await cartRef.remove();
+                console.log(`Item ${uniqueKey} removed from cart.`);
+            } else {
+                await cartRef.set({
+                    itemKey: uniqueKey,
+                    itemName: item.item_name,
+                    itemPrice: item.price,
+                    itemQuantity: item.quantity,
+                    count: newCount,
+                });
+                console.log(`Cart updated: ${uniqueKey} = ${newCount}`);
+            }
         } catch (error) {
             console.log("Error saving cart data:", error);
         }
     };
 
-
     const handleAddToCart = (uniqueKey) => {
         setCartCounts((prevCounts) => {
             const updatedCounts = { ...prevCounts, [uniqueKey]: 1 };
-            saveCartData(updatedCounts);
+            saveCartData(uniqueKey, updatedCounts);
             return updatedCounts;
         });
     };
@@ -83,7 +135,7 @@ const PoojaCategoryScreen = () => {
     const handleIncrease = (uniqueKey) => {
         setCartCounts((prevCounts) => {
             const updatedCounts = { ...prevCounts, [uniqueKey]: (prevCounts[uniqueKey] || 0) + 1 };
-            saveCartData(updatedCounts);
+            saveCartData(uniqueKey, updatedCounts);
             return updatedCounts;
         });
     };
@@ -94,11 +146,11 @@ const PoojaCategoryScreen = () => {
             if (newCount <= 0) {
                 const updatedCounts = { ...prevCounts };
                 delete updatedCounts[uniqueKey];
-                saveCartData(updatedCounts);
+                saveCartData(uniqueKey, updatedCounts);
                 return updatedCounts;
             }
             const updatedCounts = { ...prevCounts, [uniqueKey]: newCount };
-            saveCartData(updatedCounts);
+            saveCartData(uniqueKey, updatedCounts);
             return updatedCounts;
         });
     };
@@ -119,48 +171,8 @@ const PoojaCategoryScreen = () => {
     };
 
     const handleCartClick = async () => {
-        try {
-            const cartItems = [];
-
-            console.log("cartCounts: ", cartCounts);
-            console.log("productCategoryData: ", productCategoryData);
-
-            Object.keys(cartCounts).forEach((key) => {
-                const lastUnderscoreIndex = key.lastIndexOf("_");
-                const category = key.substring(0, lastUnderscoreIndex); // Extract category
-                const indexStr = key.substring(lastUnderscoreIndex + 1); // Extract index
-                const index = parseInt(indexStr, 10);
-
-                console.log(`Extracted -> Category: ${category}, Index: ${index}`);
-
-                if (productCategoryData[category] && !isNaN(index) && productCategoryData[category][index]) {
-                    const item = productCategoryData[category][index];
-                    const count = cartCounts[key];
-
-                    console.log("Item found:", item, "Count:", count);
-
-                    if (count > 0) {
-                        cartItems.push({ ...item, count });
-                    }
-                } else {
-                    console.warn(`Skipping key ${key} - category or index not found`);
-                }
-            });
-
-            console.log("Final cartItems:", cartItems);
-
-            if (cartItems.length > 0) {
-                await AsyncStorage.setItem("cartData", JSON.stringify(cartItems));
-            }
-
-            navigation.navigate("ADDTOCART", { cartData: cartItems });
-
-        } catch (error) {
-            console.error("Error saving cart data:", error);
-        }
+        navigation.navigate("ADDTOCART");
     };
-
-
 
 
     return (

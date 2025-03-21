@@ -2,43 +2,24 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import React, { useEffect } from 'react';
-import { View, Text } from 'react-native';
-
-const generateUniqueOrderID = () => {
-    return Date.now().toString() + Math.floor(Math.random() * 10000).toString();
-};
+import { View, Text, BackHandler } from 'react-native';
 
 const OrderSuccessScreen = () => {
 
     const navigation = useNavigation();
 
     useEffect(() => {
-        const storeOrderID = async () => {
-            const uniqueOrderID = generateUniqueOrderID();
-            try {
-                await AsyncStorage.setItem('ORDER_ID', uniqueOrderID);
-                console.log("Stored Order ID:", uniqueOrderID);
-            } catch (error) {
-                console.error("Error storing order ID:", error);
-            }
-        };
-
-        storeOrderID();
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true);
 
         const timer = setTimeout(() => {
             navigation.navigate('MYORDERS');
-        }, 3000);
+        }, 2000);
 
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            backHandler.remove();
+        };
     }, [navigation]);
-
-
-    // useEffect(() => {
-    //     const timer = setTimeout(() => {
-    //         navigation.navigate('MYORDERS'); 
-    //     }, 3000);
-    //     return () => clearTimeout(timer);
-    // }, [navigation]);
 
     return (
         <View style={{ flex: 1, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' }}>

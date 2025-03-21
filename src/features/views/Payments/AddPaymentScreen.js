@@ -3,6 +3,8 @@ import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, Image, TouchableOpacity, Linking, Alert } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
 import { v4 as uuidv4 } from 'uuid';
+import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 
 const AddPaymentScreen = () => {
 
@@ -15,9 +17,43 @@ const AddPaymentScreen = () => {
     const navigateBack = () => {
         navigation.goBack();
     };
+    const handlePayment = async () => {
+        try {
+            const user = auth().currentUser;
+            if (!user) return;
 
-    const handlePayment = () => {
-        navigation.navigate('ORDERSUCCESS');
+            const userId = user.uid; // Ensure user ID is available
+            const cartRef = database().ref(`/users/${userId}/cartItems`);
+    
+            // Fetch the cart items from Firebase
+            const snapshot = await cartRef.once('value');
+            const cartItems = snapshot.val();
+    
+            if (!cartItems) {
+                Alert.alert("Sorry something went wrong");
+                return;
+            }
+    
+            // Generate a unique transaction ID
+            const transactionId = database().ref(`/transactions/${userId}`).push().key;
+    
+            // Save cart items with transaction ID under orders
+            await database().ref(`/users/${userId}/orders/${transactionId}`).set({
+                transactionId,
+                items: cartItems,
+                timestamp: database.ServerValue.TIMESTAMP,
+            });
+    
+            // Clear the cart
+            await cartRef.remove();
+    
+            // Navigate to the Order Success screen
+            navigation.navigate('ORDERSUCCESS');
+    
+        } catch (error) {
+            console.log("Payment Error:", error);
+            Alert.alert("Error", "Something went wrong. Please try again.");
+        }
     };
 
     const UPI_PAYMENT_OPTIONS = {

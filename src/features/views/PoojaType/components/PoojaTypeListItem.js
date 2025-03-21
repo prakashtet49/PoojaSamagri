@@ -7,20 +7,15 @@ import { Picker } from '@react-native-picker/picker';
 const PoojaTypeListItem = ({ item, index, category, count, onAddToCart, onIncrease, onDecrease }) => {
     const uniqueKey = `${category}_${index}`;
 
-    // Ensure `price` and `quantity` are strings before using `includes()`
     const priceString = typeof item.price === 'string' ? item.price : '';
     const quantityString = typeof item.quantity === 'string' ? item.quantity : '';
 
-    // Ensure `price` and `quantity` are arrays
     const priceOptions = priceString.includes(",") ? priceString.split(",") : [priceString];
     const quantityOptions = quantityString.includes(",") ? quantityString.split(",") : [quantityString];
 
-    // State to manage selected values
     const [selectedPrice, setSelectedPrice] = useState(priceOptions[0] || '');
     const [selectedQuantity, setSelectedQuantity] = useState(quantityOptions[0] || '');
 
-
-    // src/assets/icons/antimImages/angocha.jpg
     const imageArray = [
         require("../../../../assets/icons/antimImages/kewda_jal.jpg"),
         require("../../../../assets/icons/antimImages/chandan_lakdi.jpg"),
