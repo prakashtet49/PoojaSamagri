@@ -15,6 +15,8 @@ import PoojaCategoryScreen from '../../features/views/PoojaCategory/PoojaCategor
 import AddtoCartScreen from '../../features/views/Cart/AddtoCartScreen';
 import OrderSuccessScreen from '../../features/views/OrderSuccess/OrderSuccessScreen';
 import auth from '@react-native-firebase/auth';
+import OrderHistoryScreen from '../../features/views/MyOrders/OrderHistoryScreen';
+import OrderDetailScreen from '../../features/views/MyOrders/OrderDetailsScreen';
 
 
 const Stack = createStackNavigator();
@@ -32,6 +34,8 @@ const AppNavigation = () => {
                 <Stack.Screen name="ADDTOCART" component={AddtoCartScreen} />
                 <Stack.Screen name="SEARCH" component={SearchScreen} />
                 <Stack.Screen name="MYORDERS" component={MyOrdersScreen} />
+                <Stack.Screen name="ORDERHISTORY" component={OrderHistoryScreen} />
+                <Stack.Screen name="ORDERDETAILS" component={OrderDetailScreen} />
                 <Stack.Screen name="ADDADDRESS" component={AddNewAddressScreen} />
                 <Stack.Screen name="ADDPAYMENT" component={AddPaymentScreen} />
                 <Stack.Screen name="POOJATYPE" component={PoojaTypeScreen} />

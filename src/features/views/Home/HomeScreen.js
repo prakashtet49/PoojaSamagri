@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList, ImageBackground, Animated, StatusBar, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList, ImageBackground, Animated, StatusBar, SafeAreaView, ActivityIndicator, BackHandler } from 'react-native';
 import { ScrollView, Image } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -29,6 +29,15 @@ const HomeScreen = () => {
     const [cartItems, setCartItems] = useState(0);
 
     const [selectedAddress, setSelectedAddress] = useState(null);
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            () => true
+        );
+
+        return () => backHandler.remove(); // Cleanup on unmount
+    }, []);
 
     useEffect(() => {
         const fetchSelectedAddress = async () => {
@@ -92,7 +101,7 @@ const HomeScreen = () => {
             navigation.navigate('PROFILE');
         }
         if (id === 'Orders') {
-            navigation.navigate('MYORDERS');
+            navigation.navigate('ORDERHISTORY');
         }
     };
 
@@ -480,8 +489,8 @@ const HomeScreen = () => {
                                 </View>
                                 {/* </ImageBackground> */}
 
-                                <View style={{ flex: 1, alignItems: 'center', borderBottomRightRadius: 50, borderBottomLeftRadius: 50, marginBottom: 20, backgroundColor: Color.primary_orange}}>
-                                    
+                                <View style={{ flex: 1, alignItems: 'center', borderBottomRightRadius: 50, borderBottomLeftRadius: 50, marginBottom: 20, backgroundColor: Color.primary_orange }}>
+
                                     <View style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 5, marginStart: 10, marginEnd: 10, padding: 10 }}>
                                         <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, marginRight: 4, flex: 1, }}> Explore Pooja Categories  </Text>
                                         <TouchableOpacity onPress={() => handleAllPoojaCategories()} style={{ flexDirection: "row", alignItems: "center", }}>
@@ -491,7 +500,7 @@ const HomeScreen = () => {
                                     </View>
 
                                     <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, }}>
-                                        {productCategoryData.slice(0, 3).map((item, index) => (
+                                        {productCategoryData.slice(1, 4).map((item, index) => (
                                             <ItemCard
                                                 key={index}
                                                 imageSource={item.image}
@@ -502,7 +511,7 @@ const HomeScreen = () => {
                                     </View>
 
                                     <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, marginBottom: 10, }}>
-                                        {productCategoryData.slice(3, 6).map((item, index) => (
+                                        {productCategoryData.slice(4, 7).map((item, index) => (
                                             <ItemCard
                                                 key={index + 3}
                                                 imageSource={item.image}

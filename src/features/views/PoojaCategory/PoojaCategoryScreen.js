@@ -83,6 +83,18 @@ const PoojaCategoryScreen = () => {
         }, [])
     );
 
+    useEffect(() => {
+        saveCartCounts(cartCounts);
+    }, [cartCounts]);
+
+    const saveCartCounts = async (newCounts) => {
+        try {
+            await AsyncStorage.setItem('cartCounts', JSON.stringify(newCounts));
+        } catch (error) {
+            console.error("Failed to save cart counts:", error);
+        }
+    };
+
     const saveCartData = async (uniqueKey, updatedCounts) => {
         try {
             const user = auth().currentUser;

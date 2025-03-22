@@ -39,6 +39,7 @@ const AddPaymentScreen = () => {
     
             // Save cart items with transaction ID under orders
             await database().ref(`/users/${userId}/orders/${transactionId}`).set({
+                totalAmount,
                 transactionId,
                 items: cartItems,
                 timestamp: database.ServerValue.TIMESTAMP,

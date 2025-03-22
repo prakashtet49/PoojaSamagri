@@ -175,7 +175,7 @@ const ProfileScreen = () => {
 
                     <View style={{ borderBottomWidth: 1, borderBottomColor: Color.primary_grey, marginVertical: 10 }} />
 
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                         style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 5 }}
                         onPress={() => handleYourTransactions()}
                     >
@@ -190,9 +190,9 @@ const ProfileScreen = () => {
                             source={require('../../../assets/icons/Profile/Forward.png')}
                             style={{ width: 20, height: 20 }}
                         />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
-                    <View style={{ borderBottomWidth: 1, borderBottomColor: Color.primary_grey, marginVertical: 10 }} />
+                    {/* <View style={{ borderBottomWidth: 1, borderBottomColor: Color.primary_grey, marginVertical: 10 }} /> */}
 
 
                     <View style={{ marginTop: 30, marginLeft: 10 }}>

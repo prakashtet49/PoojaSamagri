@@ -44,14 +44,6 @@ const MyOrdersScreen = () => {
         return date.toLocaleString(); // Converts to readable format
     };
 
-    const renderMultipleItem = ({ item }) => {
-        return (
-            <MyOrderMultipleListItem
-                item={item}
-            />
-        );
-    };
-
     return (
         <SafeAreaView style={{ flex: 1 }}>
 
@@ -103,7 +95,7 @@ const MyOrdersScreen = () => {
 
                         </View>
 
-                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 10 }} >
+                        <View style={{ flexDirection: 'row',backgroundColor:Color.primary_orange, justifyContent: 'center', alignItems: 'center', padding: 10 }} >
                             <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 }}>
                                 <Text style={{ fontSize: 24, fontFamily: 'Roboto-Bold', color: "black",  }}>Total Order Amount</Text>
                                 <Text style={{ fontSize: 20, fontFamily: 'Roboto-Bold', color: "red" }}>₹{Object.values(latestOrder.items).reduce((acc, item) => acc + parseFloat(item.itemPrice), 0)}</Text>
