@@ -4,11 +4,13 @@ import Color from '../../../infrastruture/theme/color';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import OrderHistoryShimmer from './components/OrderHistoryShimmer';
 
 const OrderHistoryScreen = () => {
     const navigation = useNavigation();
     const deviceWidth = Dimensions.get('window').width;
     const [orders, setOrders] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchAllOrders = async () => {
@@ -26,7 +28,10 @@ const OrderHistoryScreen = () => {
                     } else {
                         console.log("No orders found");
                     }
+                    setIsLoading(false);
                 });
+            } else {
+                setIsLoading(false);
             }
         };
 
@@ -43,6 +48,10 @@ const OrderHistoryScreen = () => {
     };
 
     const renderOrderItem = ({ item }) => {
+        if (isLoading) {
+            return <OrderHistoryShimmer />;
+        }
+
         const orderItems = Object.values(item.items);
         return (
             <TouchableOpacity onPress={() => navigation.navigate("ORDERDETAILS", { order: item })}
@@ -108,7 +117,14 @@ const OrderHistoryScreen = () => {
                 <Text style={{ fontSize: 18, fontFamily: "Roboto-Medium", textAlign: 'center', paddingHorizontal: 20 }}>My Orders</Text>
             </View>
 
-            {orders.length > 0 ? (
+            {isLoading ? (
+                <FlatList
+                    data={[1, 2, 3]}
+                    keyExtractor={(_, index) => index.toString()}
+                    renderItem={() => <OrderHistoryShimmer />}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                />
+            ) : orders.length > 0 ? (
                 <FlatList
                     data={orders}
                     keyExtractor={(item, index) => index.toString()}

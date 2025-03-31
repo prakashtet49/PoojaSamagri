@@ -8,6 +8,7 @@ import AddAddressSheet from '../Profile/components/AddAddressSheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import PoojaTypeListItemShimmer from '../PoojaType/components/PoojaTypeListItemShimmer';
 
 const AddtoCartScreen = () => {
     const navigation = useNavigation();
@@ -18,6 +19,7 @@ const AddtoCartScreen = () => {
     const [cartCounts, setCartCounts] = useState({});
     const [addressBtmSheetVisible, setaddressBtmSheetVisible] = useState(false);
     const [selectedAddress, setSelectedAddress] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchSelectedAddress = async () => {
@@ -44,6 +46,7 @@ const AddtoCartScreen = () => {
                     const user = auth().currentUser;
                     if (!user) {
                         console.log("User not logged in");
+                        setIsLoading(false);
                         return;
                     }
 
@@ -66,9 +69,11 @@ const AddtoCartScreen = () => {
                             console.log("No cart data found in Firebase");
                             setCartItems([]);
                         }
+                        setIsLoading(false);
                     });
                 } catch (error) {
                     console.log("Error fetching cart data:", error);
+                    setIsLoading(false);
                 }
             };
 
@@ -168,10 +173,14 @@ const AddtoCartScreen = () => {
                 <View style={{ flex: 1 }} />
             </View>
 
-            {cartItems.length > 0 ? (
-
+            {isLoading ? (
+                <View style={{ flex: 1, padding: 10 }}>
+                    {[1, 2, 3, 4, 5].map((_, index) => (
+                        <PoojaTypeListItemShimmer key={index} />
+                    ))}
+                </View>
+            ) : cartItems.length > 0 ? (
                 <View style={{ flex: 1 }}>
-
                     <View style={{ flex: 1 }}>
                         <FlatList
                             data={cartItems}

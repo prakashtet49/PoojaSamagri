@@ -66,14 +66,19 @@ const PoojaTypeListItem = ({ item, index, category, count, onAddToCart, onIncrea
                     <Text style={{ fontSize: 15, color: "black", fontFamily: 'Roboto-Medium' }}>Add to Cart</Text>
                 </TouchableOpacity>
             ) : (
-                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: "white", paddingHorizontal: 8, borderRadius: 5 }}>
-                    <TouchableOpacity onPress={() => onDecrease(uniqueKey)} style={{ padding: 5, borderRadius: 5 }}>
-                        <Text style={{ fontSize: 18, fontFamily: 'Roboto-Bold', color: 'orange' }}>-</Text>
-                    </TouchableOpacity>
-                    <Text style={{ fontSize: 16, fontFamily: 'Roboto-Bold', color: "black", marginHorizontal: 20 }}>{count}</Text>
-                    <TouchableOpacity onPress={() => onIncrease(uniqueKey)} style={{ padding: 5, borderRadius: 5 }}>
-                        <Text style={{ fontSize: 16, fontFamily: 'Roboto-Bold', color: 'orange' }}>+</Text>
-                    </TouchableOpacity>
+                <View style={{ width: 120, alignItems: 'center' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: "white", paddingHorizontal: 8, borderRadius: 5 }}>
+                        <TouchableOpacity onPress={() => onDecrease(uniqueKey)} style={{ padding: 5, borderRadius: 5 }}>
+                            <Text style={{ fontSize: 18, fontFamily: 'Roboto-Bold', color: 'orange' }}>-</Text>
+                        </TouchableOpacity>
+                        <Text style={{ fontSize: 16, fontFamily: 'Roboto-Bold', color: "black", marginHorizontal: 20 }}>{count}</Text>
+                        <TouchableOpacity onPress={() => onIncrease(uniqueKey)} style={{ padding: 5, borderRadius: 5 }}>
+                            <Text style={{ fontSize: 16, fontFamily: 'Roboto-Bold', color: 'orange' }}>+</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={{ fontSize: 14, color: 'white', fontFamily: 'Roboto-Medium', marginTop: 4, textAlign: 'center' }}>
+                        Total: ₹{parseFloat(selectedPrice) * count}
+                    </Text>
                 </View>
             )}
 

@@ -1,17 +1,27 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, FlatList, TouchableOpacity, Image, Dimensions } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
 import PoojaTypeListItem from './components/PoojaTypeListItem';
+import PoojaTypeListItemShimmer from './components/PoojaTypeListItemShimmer';
 
 const PoojaTypeScreen = () => {
     const navigation = useNavigation();
     const { width } = Dimensions.get('window');
     const route = useRoute();
+    const [isLoading, setIsLoading] = useState(true);
 
     const poojaCategoryData = route.params?.poojaCategoryData || [];
     const screenName = route.params?.screenName || "Select Items";
 
+    useEffect(() => {
+        // Simulate API delay
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1500); // 1.5 seconds delay
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const navigateBack = () => {
         navigation.goBack();
@@ -35,7 +45,6 @@ const PoojaTypeScreen = () => {
         { id: '6', title: 'Item 6', image: require('../../../assets/icons/Home/laxmidevi_pic.png'), price: "₹200", description: "Quantity: 1 Piece" },
         { id: '7', title: 'Item 6', image: require('../../../assets/icons/Home/laxmidevi_pic.png'), price: "₹200", description: "Quantity: 1 Piece" },
         { id: '8', title: 'Item 6', image: require('../../../assets/icons/Home/laxmidevi_pic.png'), price: "₹200", description: "Quantity: 1 Piece" },
-
     ];
 
     const [selectedId, setSelectedId] = useState(poojaCategoryData[0].id);
@@ -59,7 +68,6 @@ const PoojaTypeScreen = () => {
         }
     };
 
-
     const renderHorizontalItem = ({ item }) => {
         const isSelected = selectedId === item.id;
         return (
@@ -81,10 +89,12 @@ const PoojaTypeScreen = () => {
         navigation.navigate("ADDTOCART");
     };
 
-
     const renderItem = ({ item }) => {
-        const count = cartCounts[item.id] || 0;
+        if (isLoading) {
+            return <PoojaTypeListItemShimmer />;
+        }
 
+        const count = cartCounts[item.id] || 0;
         return (
             <PoojaTypeListItem
                 item={item}
@@ -98,9 +108,7 @@ const PoojaTypeScreen = () => {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
-
             <View style={{ flex: 1 }}>
-
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, height: 60, borderBottomWidth: 1, borderBottomColor: Color.primary_grey, }}>
                     <TouchableOpacity onPress={() => navigateBack()} style={{ marginRight: 25 }}>
                         <Image resizeMode='contain' source={require('../../../assets/icons/Home/Left.png')} style={{ width: 30, height: 30 }} />
@@ -127,23 +135,14 @@ const PoojaTypeScreen = () => {
                 </View>
 
                 <FlatList
-                    data={data}
+                    data={isLoading ? Array(5).fill({}) : data}
                     renderItem={renderItem}
-                    keyExtractor={(item) => item.id}
+                    keyExtractor={(item, index) => item.id || `shimmer-${index}`}
                     contentContainerStyle={{ padding: 10 }}
                 />
             </View>
 
-            {/* <TouchableOpacity onPress={() => { handleCartClick() }} style={{ flexDirection: 'row', alignItems: "center", justifyContent: "space-between", alignSelf: 'center', padding: 5, width: "40%", backgroundColor: "#525252", borderRadius: 30, position: 'absolute', bottom: 20, }}>
-                <View style={{ padding: 5, justifyContent: "flex-start", alignItems: "flex-start", marginStart: 10 }}>
-                    <Text style={{ fontSize: 15, color: "white", textAlign: 'center', fontFamily: "Roboto-Medium", }}>View cart</Text>
-                    <Text style={{ fontSize: 14, color: "white", textAlign: 'center', fontFamily: "Roboto-Light" }}>3 Items</Text>
-                </View>
-                <View style={{ backgroundColor: '#A8A8A8', borderRadius: 20, padding: 2, width: 40, height: 40 }}>
-                    <Image source={require('../../../assets/icons/Home/arrow.png')} resizeMode='contain' style={{ width: "100%", height: "100%", tintColor: "white", transform: [{ rotate: '270deg' }] }} />
-                </View>
-            </TouchableOpacity> */}
-            {Object.values(cartCounts).reduce((acc, count) => acc + count, 0) > 0 && (
+            {Object.keys(cartCounts).length > 0 && (
                 <TouchableOpacity onPress={handleCartClick} style={{ flexDirection: 'row', alignItems: "center", justifyContent: "space-between", alignSelf: 'center', padding: 5, width: "40%", backgroundColor: "white", borderRadius: 30, position: 'absolute', bottom: 20 }}>
                     <View style={{ padding: 5, justifyContent: "flex-start", alignItems: "flex-start", marginStart: 10 }}>
                         <Text style={{ fontSize: 15, color: "black", textAlign: 'center', fontFamily: "Roboto-Bold" }}>View cart</Text>
@@ -156,11 +155,9 @@ const PoojaTypeScreen = () => {
                     </View>
                 </TouchableOpacity>
             )}
-
         </SafeAreaView>
     );
 };
-
 
 export default PoojaTypeScreen;
 

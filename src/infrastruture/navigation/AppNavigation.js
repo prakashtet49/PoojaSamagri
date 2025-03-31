@@ -14,6 +14,7 @@ import PoojaTypeScreen from '../../features/views/PoojaType/PoojaTypeScreen';
 import PoojaCategoryScreen from '../../features/views/PoojaCategory/PoojaCategoryScreen';
 import AddtoCartScreen from '../../features/views/Cart/AddtoCartScreen';
 import OrderSuccessScreen from '../../features/views/OrderSuccess/OrderSuccessScreen';
+import AntimSanskarScreen from '../../features/views/AntimSanskar/AntimSanskarScreen';
 import auth from '@react-native-firebase/auth';
 import OrderHistoryScreen from '../../features/views/MyOrders/OrderHistoryScreen';
 import OrderDetailScreen from '../../features/views/MyOrders/OrderDetailsScreen';
@@ -40,6 +41,7 @@ const AppNavigation = () => {
                 <Stack.Screen name="ADDPAYMENT" component={AddPaymentScreen} />
                 <Stack.Screen name="POOJATYPE" component={PoojaTypeScreen} />
                 <Stack.Screen name="POOJACATEGORY" component={PoojaCategoryScreen} />
+                <Stack.Screen name="ANTIMSANSKAR" component={AntimSanskarScreen} />
                 <Stack.Screen name="ORDERSUCCESS" component={OrderSuccessScreen} />
 
             </Stack.Navigator>

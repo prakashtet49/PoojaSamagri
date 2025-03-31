@@ -5,6 +5,7 @@ import Color from '../../../infrastruture/theme/color';
 import { v4 as uuidv4 } from 'uuid';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AddPaymentScreen = () => {
 
@@ -24,19 +25,19 @@ const AddPaymentScreen = () => {
 
             const userId = user.uid; // Ensure user ID is available
             const cartRef = database().ref(`/users/${userId}/cartItems`);
-    
+
             // Fetch the cart items from Firebase
             const snapshot = await cartRef.once('value');
             const cartItems = snapshot.val();
-    
+
             if (!cartItems) {
                 Alert.alert("Sorry something went wrong");
                 return;
             }
-    
+
             // Generate a unique transaction ID
             const transactionId = database().ref(`/transactions/${userId}`).push().key;
-    
+
             // Save cart items with transaction ID under orders
             await database().ref(`/users/${userId}/orders/${transactionId}`).set({
                 totalAmount,
@@ -44,13 +45,12 @@ const AddPaymentScreen = () => {
                 items: cartItems,
                 timestamp: database.ServerValue.TIMESTAMP,
             });
-    
+
             // Clear the cart
             await cartRef.remove();
-    
-            // Navigate to the Order Success screen
+            await AsyncStorage.removeItem('cartCounts');
             navigation.navigate('ORDERSUCCESS');
-    
+
         } catch (error) {
             console.log("Payment Error:", error);
             Alert.alert("Error", "Something went wrong. Please try again.");
@@ -61,43 +61,43 @@ const AddPaymentScreen = () => {
         phonepe: 'com.phonepe.app',
         googlePay: 'com.google.android.apps.nbu.paisa.user',
         paytm: 'net.one97.paytm',
-      };
-      
-      const initiateUpiPayment = async (appName) => {
+    };
+
+    const initiateUpiPayment = async (appName) => {
         // alert('initiateUpiPayment called for ' + appName);
         console.log('initiateUpiPayment called for', appName);
 
-        const upiId = 'upendar.nani1@axl';  // Replace with your actual UPI ID
-        const amount = '100';
-        const transactionId = uuidv4();
-        const transactionRefId = 'TXN_' + transactionId;
-      
-        const upiUrl = `upi://pay?pa=${upiId}&pn=Test User&tn=Payment&am=${amount}&cu=INR&tr=${transactionId}&tid=${transactionRefId}`;
-        const packageName = UPI_PAYMENT_OPTIONS[appName];
-        const appUrl = packageName ? `${upiUrl}&pn=${encodeURIComponent('Test User')}&package=${packageName}` : upiUrl;
-      
-        console.log('UPI URL:', appUrl);
-        console.log('Package Name:', packageName);
-      
-        try {
-          const isSupported = await Linking.canOpenURL(appUrl);
-          console.log('Can Open URL:', isSupported);
-          if (isSupported) {
-            Linking.openURL(appUrl)
-              .then(() => console.log('Payment Request Sent'))
-              .catch((error) => {
-                console.log('Open URL Error:', error);
-                Alert.alert('Payment Error', 'Failed to open UPI app.');
-              });
-          } else {
-            Alert.alert(`${appName} is not installed on your device.`);
-          }
-        } catch (error) {
-          console.log('Catch Error:', error);
-          Alert.alert('Payment Error', 'Unable to initiate UPI payment.');
-        }
-      };
-      
+        // const upiId = 'upendar.nani1@axl';  // Replace with your actual UPI ID
+        // const amount = '100';
+        // const transactionId = uuidv4();
+        // const transactionRefId = 'TXN_' + transactionId;
+
+        // const upiUrl = `upi://pay?pa=${upiId}&pn=Test User&tn=Payment&am=${amount}&cu=INR&tr=${transactionId}&tid=${transactionRefId}`;
+        // const packageName = UPI_PAYMENT_OPTIONS[appName];
+        // const appUrl = packageName ? `${upiUrl}&pn=${encodeURIComponent('Test User')}&package=${packageName}` : upiUrl;
+
+        // console.log('UPI URL:', appUrl);
+        // console.log('Package Name:', packageName);
+
+        // try {
+        //     const isSupported = await Linking.canOpenURL(appUrl);
+        //     console.log('Can Open URL:', isSupported);
+        //     if (isSupported) {
+        //         Linking.openURL(appUrl)
+        //             .then(() => console.log('Payment Request Sent'))
+        //             .catch((error) => {
+        //                 console.log('Open URL Error:', error);
+        //                 Alert.alert('Payment Error', 'Failed to open UPI app.');
+        //             });
+        //     } else {
+        //         Alert.alert(`${appName} is not installed on your device.`);
+        //     }
+        // } catch (error) {
+        //     console.log('Catch Error:', error);
+        //     Alert.alert('Payment Error', 'Unable to initiate UPI payment.');
+        // }
+    };
+
 
     // const handlePaymentPhonepe = (paymentMethod) => {
     //     const amount = 100; // Change this to your required amount
@@ -105,9 +105,9 @@ const AddPaymentScreen = () => {
     //     const transactionId = `TXN${Date.now()}`; // Unique transaction ID
     //     const merchantName = "upendar reddy"; // Change to your merchant name
     //     const note = "testing"; // Add a note for the transaction
-    
+
     //     // let upiUri = `upi://pay?pa=${upiId}&pn=${merchantName}&mc=&tid=${transactionId}&tr=${transactionId}&tn=${note}&am=${amount}&cu=INR`;
-    
+
     //     // if (paymentMethod === 'phonepe') {
     //     //     upiUri = `phonepe://upi/pay?pa=${upiId}&pn=${merchantName}&mc=&tid=${transactionId}&tr=${transactionId}&tn=${note}&am=${amount}&cu=INR`;
     //     // }
@@ -126,7 +126,7 @@ const AddPaymentScreen = () => {
     //             upiUri = `paytm://upi/pay?pa=${upiId}&pn=${merchantName}&tid=${transactionId}&tr=${transactionId}&tn=${note}&am=${amount}&cu=INR`;
     //             break;
     //     }
-    
+
     //     Linking.openURL(upiUri)
     //         .catch(() => {
     //             Alert.alert(
@@ -135,7 +135,7 @@ const AddPaymentScreen = () => {
     //             );
     //         });
     // };
-    
+
 
 
     return (
@@ -172,7 +172,8 @@ const AddPaymentScreen = () => {
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingStart: 10, paddingEnd: 10 }}
                         onPress={() => {
                             console.log('PhonePe Button Pressed');
-                            initiateUpiPayment('phonepe')}}>
+                            initiateUpiPayment('phonepe')
+                        }}>
                         <Image source={require('../../../assets/icons/payments/phonepe.png')} style={{ width: 40, height: 40 }} />
                         <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, fontFamily: 'Roboto-Medium', color: '#333', }}>Phonepe</Text>
                         <Image source={require('../../../assets/icons/Profile/Forward.png')} style={{ width: 30, height: 30 }} />

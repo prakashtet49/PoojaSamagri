@@ -9,16 +9,16 @@ const OrderSuccessScreen = () => {
     const navigation = useNavigation();
 
     useEffect(() => {
-        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true);
+            const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true);
 
-        const timer = setTimeout(() => {
-            navigation.navigate('MYORDERS');
-        }, 2000);
+            const timer = setTimeout(() => {
+                navigation.navigate('MYORDERS');
+            }, 2000);
 
-        return () => {
-            clearTimeout(timer);
-            backHandler.remove();
-        };
+            return () => {
+                clearTimeout(timer);
+                backHandler.remove();
+            };
     }, [navigation]);
 
     return (

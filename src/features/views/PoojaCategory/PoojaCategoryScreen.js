@@ -6,11 +6,14 @@ import Color from '../../../infrastruture/theme/color';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import PoojaTypeListItemShimmer from '../PoojaType/components/PoojaTypeListItemShimmer';
 
 const PoojaCategoryScreen = () => {
     const navigation = useNavigation();
     const { width } = Dimensions.get('window');
     const route = useRoute();
+    const [isLoading, setIsLoading] = useState(true);
+    const [isCartLoading, setIsCartLoading] = useState(true);
 
     const productCategoryData = route.params?.categoryData || {};
     const screenName = route.params?.screenName || "Select Items";
@@ -29,7 +32,6 @@ const PoojaCategoryScreen = () => {
 
     const staticImage = require('../../../assets/icons/Home/laxmidevi_pic.png');
     const staticPoojaCategory = [
-        require('../../../assets/icons/Home/antim_sansakar_samagri.jpg'),
         require('../../../assets/icons/PoojaCategory/bartan_samagri.jpg'),
         require('../../../assets/icons/PoojaCategory/frame_n_murti.jpg'),
         require('../../../assets/icons/PoojaCategory/gems_n_yantra.jpg'),
@@ -37,11 +39,13 @@ const PoojaCategoryScreen = () => {
         require('../../../assets/icons/PoojaCategory/aasan_samagri.jpg'),
     ];
 
-    const transformedData = categoryKeys.map((key, index) => ({
-        id: key,
-        text: key.replace(/_/g, ' '),
-        image: staticPoojaCategory[index] || staticPoojaCategory[0],
-    }));
+    const transformedData = categoryKeys
+        .filter(key => key !== 'antim_sanskar_samagri')
+        .map((key, index) => ({
+            id: key,
+            text: key.replace(/_/g, ' '),
+            image: staticPoojaCategory[index] || staticPoojaCategory[0],
+        }));
 
     const selectedCategoryData = productCategoryData[selectedIndex] || [];
 
@@ -54,6 +58,7 @@ const PoojaCategoryScreen = () => {
                     const user = auth().currentUser;
                     if (!user) {
                         console.log("User not logged in");
+                        setIsCartLoading(false);
                         return;
                     }
 
@@ -73,9 +78,11 @@ const PoojaCategoryScreen = () => {
                             console.log("No cart data found in Firebase");
                             setCartCounts({});
                         }
+                        setIsCartLoading(false);
                     });
                 } catch (error) {
                     console.log("Error fetching cart data:", error);
+                    setIsCartLoading(false);
                 }
             };
 
@@ -186,6 +193,32 @@ const PoojaCategoryScreen = () => {
         navigation.navigate("ADDTOCART");
     };
 
+    useEffect(() => {
+        // Set loading to false only when both data and cart are loaded
+        if (categoryKeys.length > 0 && productCategoryData[selectedIndex]?.length > 0 && !isCartLoading) {
+            setIsLoading(false);
+        }
+    }, [categoryKeys, selectedIndex, productCategoryData, isCartLoading]);
+
+    const renderItem = ({ item, index }) => {
+        if (isLoading || isCartLoading) {
+            return <PoojaTypeListItemShimmer />;
+        }
+
+        const uniqueKey = `${selectedIndex}_${index}`;
+        const count = cartCounts[uniqueKey] || 0;
+        return (
+            <PoojaTypeListItem
+                item={item}
+                index={index}
+                category={selectedIndex}
+                count={count}
+                onAddToCart={handleAddToCart}
+                onIncrease={handleIncrease}
+                onDecrease={handleDecrease}
+            />
+        );
+    };
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -214,19 +247,9 @@ const PoojaCategoryScreen = () => {
                 </View>
 
                 <FlatList
-                    data={selectedCategoryData}
+                    data={isLoading ? Array(5).fill({}) : selectedCategoryData}
                     keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item, index }) => (
-                        <PoojaTypeListItem
-                            item={item}
-                            index={index}
-                            category={selectedIndex}
-                            count={cartCounts[`${selectedIndex}_${index}`] || 0}
-                            onAddToCart={handleAddToCart}
-                            onIncrease={handleIncrease}
-                            onDecrease={handleDecrease}
-                        />
-                    )}
+                    renderItem={renderItem}
                     contentContainerStyle={{ padding: 10 }}
                 />
 
