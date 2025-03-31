@@ -1,26 +1,25 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Text, FlatList, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { SafeAreaView, View, Text, FlatList, TouchableOpacity, Image, Dimensions, Alert } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
 import PoojaTypeListItem from '../PoojaType/components/PoojaTypeListItem';
 import AddtoCartItem from './components/AddtoCartItem';
 import AddAddressSheet from '../Profile/components/AddAddressSheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
+import PoojaTypeListItemShimmer from '../PoojaType/components/PoojaTypeListItemShimmer';
 
 const AddtoCartScreen = () => {
     const navigation = useNavigation();
     const { width } = Dimensions.get('window');
     const route = useRoute();
 
-    // const productCategoryData = route.params?.cartData || {};
-
-    // console.log("productCategoryData in cart screen ", productCategoryData);
-
-
     const [cartItems, setCartItems] = useState([]);
     const [cartCounts, setCartCounts] = useState({});
     const [addressBtmSheetVisible, setaddressBtmSheetVisible] = useState(false);
     const [selectedAddress, setSelectedAddress] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchSelectedAddress = async () => {
@@ -40,42 +39,47 @@ const AddtoCartScreen = () => {
         fetchSelectedAddress();
     }, [addressBtmSheetVisible]);
 
-
-    useEffect(() => {
-        const checkOrderAndLoadCart = async () => {
-            try {
-                const orderId = await AsyncStorage.getItem("ORDER_ID");
-
-                if (orderId) {
-                    console.log("Previous Order Found:", orderId);
-
-                    // Clear cart
-                    setCartItems([]);
-                    setCartCounts({});
-
-                    // Remove ORDER_ID from AsyncStorage
-                    await AsyncStorage.removeItem("ORDER_ID");
-                } else {
-                    // Load cart if no previous order ID is found
-                    const storedCartData = await AsyncStorage.getItem("cartData");
-                    if (storedCartData) {
-                        const parsedCartData = JSON.parse(storedCartData);
-                        const counts = {};
-                        parsedCartData.forEach(item => {
-                            counts[item.item_name] = item.count;
-                        });
-                        setCartItems(parsedCartData);
-                        setCartCounts(counts);
+    useFocusEffect(
+        useCallback(() => {
+            const fetchCartData = async () => {
+                try {
+                    const user = auth().currentUser;
+                    if (!user) {
+                        console.log("User not logged in");
+                        setIsLoading(false);
+                        return;
                     }
+
+                    const cartRef = database().ref(`/users/${user.uid}/cartItems`);
+
+                    cartRef.once("value", (snapshot) => {
+                        if (snapshot.exists()) {
+                            const cartData = snapshot.val();
+                            const formattedCart = Object.keys(cartData).map((key) => ({
+                                id: key,
+                                itemName: cartData[key].itemName,
+                                itemPrice: cartData[key].itemPrice,
+                                itemQuantity: cartData[key].itemQuantity,
+                                count: cartData[key].count
+                            }));
+
+                            setCartItems(formattedCart);
+                            console.log("formattedCart", formattedCart);
+                        } else {
+                            console.log("No cart data found in Firebase");
+                            setCartItems([]);
+                        }
+                        setIsLoading(false);
+                    });
+                } catch (error) {
+                    console.log("Error fetching cart data:", error);
+                    setIsLoading(false);
                 }
-            } catch (error) {
-                console.log("Error checking order and loading cart:", error);
-            }
-        };
+            };
 
-        checkOrderAndLoadCart();
-    }, []);
-
+            fetchCartData();
+        }, [])
+    );
 
     const navigateBack = () => {
         navigation.goBack();
@@ -85,78 +89,82 @@ const AddtoCartScreen = () => {
     const openBottomSheet = () => setaddressBtmSheetVisible(true);
     const closeBottomSheet = () => setaddressBtmSheetVisible(false);
 
+    const handleIncrease = async (itemId) => {
+        try {
+            const user = auth().currentUser;
+            if (!user) return;
 
-    const numColumns = 2;
+            const itemRef = database().ref(`/users/${user.uid}/cartItems/${itemId}`);
 
-    const itemWidth = width / numColumns - 60;
-    const itemWidth2 = width / numColumns - 120;
+            itemRef.once("value", (snapshot) => {
+                if (snapshot.exists()) {
+                    const currentCount = snapshot.val().count || 0;
+                    itemRef.update({ count: currentCount + 1 });
+                }
+            });
 
-    const handleAddToCart = (id) => {
-        setCartCounts({ ...cartCounts, [id]: 1 });
+            // Update local state immediately for better UI response
+            setCartItems(prevItems =>
+                prevItems.map(item =>
+                    item.id === itemId ? { ...item, count: item.count + 1 } : item
+                )
+            );
+        } catch (error) {
+            console.error("Error increasing count:", error);
+        }
     };
 
-    // const handleIncrease = (id) => {
-    //     setCartCounts({ ...cartCounts, [id]: (cartCounts[id] || 0) + 1 });
-    // };
+    const handleDecrease = async (itemId) => {
+        try {
+            const user = auth().currentUser;
+            if (!user) return;
 
-    // const handleDecrease = (id) => {
-    //     if (cartCounts[id] > 1) {
-    //         setCartCounts({ ...cartCounts, [id]: cartCounts[id] - 1 });
-    //     } else {
-    //         const updatedCounts = { ...cartCounts };
-    //         delete updatedCounts[id];
-    //         setCartCounts(updatedCounts);
-    //     }
-    // };
-    const handleIncrease = (itemName) => {
-        setCartCounts(prevCounts => ({
-            ...prevCounts,
-            [itemName]: (prevCounts[itemName] || 0) + 1
-        }));
+            const itemRef = database().ref(`/users/${user.uid}/cartItems/${itemId}`);
+
+            itemRef.once("value", (snapshot) => {
+                if (snapshot.exists()) {
+                    const currentCount = snapshot.val().count || 0;
+
+                    if (currentCount > 1) {
+                        itemRef.update({ count: currentCount - 1 });
+                    } else {
+                        // Remove the item from Firebase if count is 0
+                        itemRef.remove();
+                        setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
+                    }
+                }
+            });
+
+            // Update local state immediately for UI responsiveness
+            setCartItems(prevItems =>
+                prevItems.map(item =>
+                    item.id === itemId ? { ...item, count: Math.max(0, item.count - 1) } : item
+                ).filter(item => item.count > 0) // Remove items with count 0
+            );
+        } catch (error) {
+            console.error("Error decreasing count:", error);
+        }
     };
 
-    const handleDecrease = (itemName) => {
-        setCartCounts(prevCounts => {
-            const newCounts = { ...prevCounts };
-            if (newCounts[itemName] > 1) {
-                newCounts[itemName] -= 1;
-            } else {
-                delete newCounts[itemName]; // Remove from cart if count is 0
-                setCartItems(prevItems => prevItems.filter(item => item.item_name !== itemName));
-            }
-            return newCounts;
-        });
-    };
 
     const calculateTotalPrice = () => {
         return cartItems.reduce((total, item) => {
-            const count = cartCounts[item.item_name] || 0; // Get count from cartCounts
-            return total + (item.price * count); // Multiply price by count and add to total
+            const count = cartCounts[item.id] || item.count;
+            return total + (item.itemPrice * count);
         }, 0);
     };
 
 
     const handlePayUsing = () => {
+        if (!selectedAddress) {
+            Alert.alert("Address Required", "Please select an address before placing the order.");
+            return;
+        }
         navigation.navigate('ADDPAYMENT', { totalAmount: calculateTotalPrice() });
-    };
-
-    const renderItem = ({ item }) => {
-        const count = cartCounts[item.item_name] || 0;
-
-        return (
-            <AddtoCartItem
-                item={item}
-                count={count}
-                onAddToCart={handleAddToCart}
-                onIncrease={handleIncrease}
-                onDecrease={handleDecrease}
-            />
-        );
     };
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, height: 60, borderBottomWidth: 1, borderBottomColor: 'gray' }}>
                 <TouchableOpacity onPress={navigateBack} style={{ marginRight: 25 }}>
                     <Image resizeMode="contain" source={require('../../../assets/icons/Home/Left.png')} style={{ width: 30, height: 30 }} />
@@ -165,58 +173,84 @@ const AddtoCartScreen = () => {
                 <View style={{ flex: 1 }} />
             </View>
 
-            <View style={{ flex: 1 }}>
-                <FlatList
-                    data={cartItems}
-                    renderItem={renderItem}
-                    keyExtractor={(item, index) => index.toString()}
-                    contentContainerStyle={{ padding: 10 }}
-                />
-            </View>
-
-            <View style={{ backgroundColor: '#EFEEEE', elevation: 5, borderTopLeftRadius: 8, borderTopRightRadius: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }}>
-                <TouchableOpacity onPress={() => openBottomSheet()} style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 10, borderTopLeftRadius: 8, borderTopRightRadius: 8, }}>
-                    <Image resizeMode="contain" source={require('../../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
-                    <View style={{ width: "100%" }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={{ fontSize: 18, fontFamily: 'Roboto-Medium', color: 'black' }}>Delivering to</Text>
-                            <Image resizeMode="contain" source={require('../../../assets/icons/Profile/Forward.png')} style={{ marginStart: 10, width: 30, height: 30, transform: [{ rotate: '90deg' }] }} />
-                        </View>
-                        {selectedAddress ? (
-                            <Text style={{ fontSize: 14, fontFamily: 'Roboto-Regular', color: "black", width: "80%" }} numberOfLines={1} ellipsizeMode="tail">
-                                {selectedAddress.flatNumber}, {selectedAddress.area},{selectedAddress.landmark}, {selectedAddress.townCity}, {selectedAddress.state}, {selectedAddress.pincode}
-                            </Text>
-                        ) : (
-                            <Text style={{ fontSize: 14, fontFamily: 'Roboto-Regular', color: "black" }}>Select Address</Text>
-                        )}
+            {isLoading ? (
+                <View style={{ flex: 1, padding: 10 }}>
+                    {[1, 2, 3, 4, 5].map((_, index) => (
+                        <PoojaTypeListItemShimmer key={index} />
+                    ))}
+                </View>
+            ) : cartItems.length > 0 ? (
+                <View style={{ flex: 1 }}>
+                    <View style={{ flex: 1 }}>
+                        <FlatList
+                            data={cartItems}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <AddtoCartItem
+                                    item={item}
+                                    count={item.count}
+                                    onIncrease={() => handleIncrease(item.id)}
+                                    onDecrease={() => handleDecrease(item.id)}
+                                />
+                            )}
+                        />
                     </View>
-                </TouchableOpacity>
 
-                <View style={{ borderBottomWidth: 1, borderStyle: 'dotted', borderColor: 'gray' }} />
+                    <View style={{ backgroundColor: '#EFEEEE', elevation: 5, borderTopLeftRadius: 8, borderTopRightRadius: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }}>
+                        <TouchableOpacity onPress={() => openBottomSheet()} style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 10, borderTopLeftRadius: 8, borderTopRightRadius: 8, }}>
+                            <Image resizeMode="contain" source={require('../../../assets/icons/Profile/Location.png')} style={{ width: 30, height: 30, marginRight: 10 }} />
+                            <View style={{ width: "100%" }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Text style={{ fontSize: 18, fontFamily: 'Roboto-Medium', color: 'black' }}>Delivering to</Text>
+                                    <Image resizeMode="contain" source={require('../../../assets/icons/Profile/Forward.png')} style={{ marginStart: 10, width: 30, height: 30, transform: [{ rotate: '90deg' }] }} />
+                                </View>
+                                {selectedAddress ? (
+                                    <Text style={{ fontSize: 14, fontFamily: 'Roboto-Regular', color: "black", width: "80%" }} numberOfLines={1} ellipsizeMode="tail">
+                                        {selectedAddress.flatNumber}, {selectedAddress.area},{selectedAddress.landmark}, {selectedAddress.townCity}, {selectedAddress.state}, {selectedAddress.pincode}
+                                    </Text>
+                                ) : (
+                                    <Text style={{ fontSize: 14, fontFamily: 'Roboto-Regular', color: "black" }}>Select Address</Text>
+                                )}
+                            </View>
+                        </TouchableOpacity>
 
-                <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 10 }}>
-                    {/* <TouchableOpacity style={{ width: "40%", justifyContent: "flex-start" }} onPress={() => handlePayUsing()}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-                            <Text style={{ fontSize: 14, textAlign: "center", fontFamily: 'Roboto-Light', color: 'black' }}>Pay using</Text>
-                            <Image resizeMode="contain" source={require('../../../assets/icons/Home/arrow.png')} style={{ width: 20, height: 20, marginRight: 10 }} />
+                        <View style={{ borderBottomWidth: 1, borderStyle: 'dotted', borderColor: 'gray' }} />
+
+                        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 10 }}>
+                            <TouchableOpacity onPress={() => handlePayUsing()} style={{ flex: 1, backgroundColor: 'orange', justifyContent: "space-between", alignContent: 'center', padding: 5, borderRadius: 5, flexDirection: 'row', alignItems: 'center' }}>
+                                <View style={{ alignSelf: "flex-start", alignItems: 'center', marginRight: 20, marginStart: 15 }}>
+                                    <Text style={{ fontSize: 20, fontFamily: 'Roboto-Bold', color: 'white' }}>₹{calculateTotalPrice()}</Text>
+                                    <Text style={{ fontSize: 12, fonFamily: 'Roboto-Medium', color: 'white', marginRight: 10 }}>Total</Text>
+                                </View>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', }}>
+                                    <Text style={{ fontSize: 20, fontFamily: 'Roboto-Bold', color: 'white', }}>Place Order</Text>
+                                    <Image resizeMode="contain" source={require('../../../assets/icons/Profile/Forward.png')} style={{ width: 25, height: 25, tintColor: 'white' }} />
+                                </View>
+                            </TouchableOpacity>
                         </View>
-                        <Text style={{ fontSize: 14, fontFamily: 'Roboto-Medium', color: 'black' }}>Phonepe</Text>
-                    </TouchableOpacity> */}
-                    <TouchableOpacity onPress={() => handlePayUsing()} style={{ flex: 1, backgroundColor: 'orange', justifyContent: "space-between", alignContent: 'center', padding: 5, borderRadius: 5, flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={{ alignSelf: "flex-start", alignItems: 'center', marginRight: 20, marginStart: 15 }}>
-                            <Text style={{ fontSize: 20, fontFamily: 'Roboto-Bold', color: 'white' }}>₹{calculateTotalPrice()}</Text>
-                            <Text style={{ fontSize: 12, fonFamily: 'Roboto-Medium', color: 'white', marginRight: 10 }}>Total</Text>
-                        </View>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', }}>
-                            <Text style={{ fontSize: 20, fontFamily: 'Roboto-Bold', color: 'white', }}>Place Order</Text>
-                            <Image resizeMode="contain" source={require('../../../assets/icons/Profile/Forward.png')} style={{ width: 25, height: 25, tintColor: 'white' }} />
-                        </View>
-                    </TouchableOpacity>
+
+                        <AddAddressSheet visible={addressBtmSheetVisible} close={closeBottomSheet} />
+
+                    </View>
+
                 </View>
 
-                <AddAddressSheet visible={addressBtmSheetVisible} close={closeBottomSheet} />
+            ) : (
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <Image
+                        source={require('../../../assets/icons/Home/emptycart.png')}
+                        style={{ width: 150, height: 150, marginBottom: 20 }}
+                        resizeMode="contain"
+                    />
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#555' }}>
+                        Your cart is empty!
+                    </Text>
+                    <Text style={{ fontSize: 14, color: '#777', marginTop: 5 }}>
+                        Add items to your cart to place an order.
+                    </Text>
+                </View>
+            )}
 
-            </View>
         </SafeAreaView>
     );
 };

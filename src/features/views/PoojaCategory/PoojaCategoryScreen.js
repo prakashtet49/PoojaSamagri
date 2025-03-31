@@ -1,16 +1,19 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Text, FlatList, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { SafeAreaView, View, Text, FlatList, TouchableOpacity, Image, Dimensions, Alert } from 'react-native';
 import PoojaTypeListItem from '../PoojaType/components/PoojaTypeListItem';
 import Color from '../../../infrastruture/theme/color';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import PoojaTypeListItemShimmer from '../PoojaType/components/PoojaTypeListItemShimmer';
 
 const PoojaCategoryScreen = () => {
     const navigation = useNavigation();
     const { width } = Dimensions.get('window');
     const route = useRoute();
+    const [isLoading, setIsLoading] = useState(true);
+    const [isCartLoading, setIsCartLoading] = useState(true);
 
     const productCategoryData = route.params?.categoryData || {};
     const screenName = route.params?.screenName || "Select Items";
@@ -28,29 +31,132 @@ const PoojaCategoryScreen = () => {
     const itemWidth2 = width / numColumns - 120;
 
     const staticImage = require('../../../assets/icons/Home/laxmidevi_pic.png');
+    const staticPoojaCategory = [
+        require('../../../assets/icons/PoojaCategory/bartan_samagri.jpg'),
+        require('../../../assets/icons/PoojaCategory/frame_n_murti.jpg'),
+        require('../../../assets/icons/PoojaCategory/gems_n_yantra.jpg'),
+        require('../../../assets/icons/PoojaCategory/hawan_samagri.jpg'),
+        require('../../../assets/icons/PoojaCategory/aasan_samagri.jpg'),
+    ];
 
-    const transformedData = categoryKeys.map((key, index) => ({
-        id: key,
-        text: key.replace(/_/g, ' '),
-        image: staticImage,
-    }));
+    const transformedData = categoryKeys
+        .filter(key => key !== 'antim_sanskar_samagri')
+        .map((key, index) => ({
+            id: key,
+            text: key.replace(/_/g, ' '),
+            image: staticPoojaCategory[index] || staticPoojaCategory[0],
+        }));
 
     const selectedCategoryData = productCategoryData[selectedIndex] || [];
 
     const handleCategoryPress = (id) => setSelectedIndex(id);
 
+    useFocusEffect(
+        useCallback(() => {
+            const fetchCartData = async () => {
+                try {
+                    const user = auth().currentUser;
+                    if (!user) {
+                        console.log("User not logged in");
+                        setIsCartLoading(false);
+                        return;
+                    }
+
+                    const cartRef = database().ref(`/users/${user.uid}/cartItems`);
+
+                    cartRef.once("value", (snapshot) => {
+                        if (snapshot.exists()) {
+                            const cartData = snapshot.val();
+                            const formattedCart = {};
+
+                            Object.keys(cartData).forEach((key) => {
+                                formattedCart[key] = cartData[key].count;
+                            });
+
+                            setCartCounts(formattedCart);
+                        } else {
+                            console.log("No cart data found in Firebase");
+                            setCartCounts({});
+                        }
+                        setIsCartLoading(false);
+                    });
+                } catch (error) {
+                    console.log("Error fetching cart data:", error);
+                    setIsCartLoading(false);
+                }
+            };
+
+            fetchCartData();
+        }, [])
+    );
+
+    useEffect(() => {
+        saveCartCounts(cartCounts);
+    }, [cartCounts]);
+
+    const saveCartCounts = async (newCounts) => {
+        try {
+            await AsyncStorage.setItem('cartCounts', JSON.stringify(newCounts));
+        } catch (error) {
+            console.error("Failed to save cart counts:", error);
+        }
+    };
+
+    const saveCartData = async (uniqueKey, updatedCounts) => {
+        try {
+            const user = auth().currentUser;
+            if (!user) {
+                console.log("User not logged in");
+                return;
+            }
+
+            const cartRef = database().ref(`/users/${user.uid}/cartItems/${uniqueKey}`);
+            const newCount = updatedCounts[uniqueKey] || 0;
+
+            const lastUnderscoreIndex = uniqueKey.lastIndexOf("_");
+            const category = uniqueKey.substring(0, lastUnderscoreIndex);
+            const indexStr = uniqueKey.substring(lastUnderscoreIndex + 1);
+            const index = parseInt(indexStr, 10);
+
+            if (!productCategoryData[category] || isNaN(index) || !productCategoryData[category][index]) {
+                console.warn(`Item not found for key: ${uniqueKey}`);
+                return;
+            }
+
+            const item = productCategoryData[category][index];
+
+            if (newCount <= 0) {
+                await cartRef.remove();
+                console.log(`Item ${uniqueKey} removed from cart.`);
+            } else {
+                await cartRef.set({
+                    itemKey: uniqueKey,
+                    itemName: item.item_name,
+                    itemPrice: item.price,
+                    itemQuantity: item.quantity,
+                    count: newCount,
+                });
+                console.log(`Cart updated: ${uniqueKey} = ${newCount}`);
+            }
+        } catch (error) {
+            console.log("Error saving cart data:", error);
+        }
+    };
+
     const handleAddToCart = (uniqueKey) => {
-        setCartCounts((prevCounts) => ({
-            ...prevCounts,
-            [uniqueKey]: 1,
-        }));
+        setCartCounts((prevCounts) => {
+            const updatedCounts = { ...prevCounts, [uniqueKey]: 1 };
+            saveCartData(uniqueKey, updatedCounts);
+            return updatedCounts;
+        });
     };
 
     const handleIncrease = (uniqueKey) => {
-        setCartCounts((prevCounts) => ({
-            ...prevCounts,
-            [uniqueKey]: (prevCounts[uniqueKey] || 0) + 1,
-        }));
+        setCartCounts((prevCounts) => {
+            const updatedCounts = { ...prevCounts, [uniqueKey]: (prevCounts[uniqueKey] || 0) + 1 };
+            saveCartData(uniqueKey, updatedCounts);
+            return updatedCounts;
+        });
     };
 
     const handleDecrease = (uniqueKey) => {
@@ -59,73 +165,14 @@ const PoojaCategoryScreen = () => {
             if (newCount <= 0) {
                 const updatedCounts = { ...prevCounts };
                 delete updatedCounts[uniqueKey];
+                saveCartData(uniqueKey, updatedCounts);
                 return updatedCounts;
             }
-            return { ...prevCounts, [uniqueKey]: newCount };
+            const updatedCounts = { ...prevCounts, [uniqueKey]: newCount };
+            saveCartData(uniqueKey, updatedCounts);
+            return updatedCounts;
         });
     };
-
-
-    // const user = auth.currentUser;
-
-    // useEffect(() => {
-    //     if (user) {
-    //         fetchCartData();
-    //     }
-    // }, [user]);
-
-    // const fetchCartData = async () => {
-    //     if (user) {
-    //         const cartRef = ref(database, `users/${user.uid}/cart`);
-    //         try {
-    //             const snapshot = await get(cartRef);
-    //             if (snapshot.exists()) {
-    //                 setCartCounts(snapshot.val());
-    //             }
-    //         } catch (error) {
-    //             console.error("Error fetching cart data:", error);
-    //         }
-    //     }
-    // };
-
-    // const saveCartData = async (updatedCart) => {
-    //     if (user) {
-    //         const cartRef = ref(database, `users/${user.uid}/cart`);
-    //         await set(cartRef, updatedCart);
-    //     }
-    // };
-
-    // const handleAddToCart = (uniqueKey) => {
-    //     const updatedCart = {
-    //         ...cartCounts,
-    //         [uniqueKey]: (cartCounts[uniqueKey] || 0) + 1
-    //     };
-    //     setCartCounts(updatedCart);
-    //     saveCartData(updatedCart);
-    // };
-
-    // const handleIncrease = (uniqueKey) => {
-    //     const updatedCart = {
-    //         ...cartCounts,
-    //         [uniqueKey]: (cartCounts[uniqueKey] || 0) + 1
-    //     };
-    //     setCartCounts(updatedCart);
-    //     saveCartData(updatedCart);
-    // };
-
-    // const handleDecrease = (uniqueKey) => {
-    //     const updatedCart = { ...cartCounts };
-    //     if (updatedCart[uniqueKey] > 1) {
-    //         updatedCart[uniqueKey] -= 1;
-    //     } else {
-    //         delete updatedCart[uniqueKey];
-    //     }
-    //     setCartCounts(updatedCart);
-    //     saveCartData(updatedCart);
-    // };
-
-
-
 
     const renderHorizontalItem = ({ item }) => {
         const isSelected = selectedIndex === item.id;
@@ -142,54 +189,36 @@ const PoojaCategoryScreen = () => {
         );
     };
 
-    // const handleCartClick = () => {
-    //     navigation.navigate("ADDTOCART", { cartData: selectedCategoryData });
-    // };
-
     const handleCartClick = async () => {
-        try {
-            const cartItems = [];
-    
-            console.log("cartCounts: ", cartCounts);
-            console.log("productCategoryData: ", productCategoryData);
-    
-            Object.keys(cartCounts).forEach((key) => {
-                const lastUnderscoreIndex = key.lastIndexOf("_");
-                const category = key.substring(0, lastUnderscoreIndex); // Extract category
-                const indexStr = key.substring(lastUnderscoreIndex + 1); // Extract index
-                const index = parseInt(indexStr, 10);
-    
-                console.log(`Extracted -> Category: ${category}, Index: ${index}`);
-    
-                if (productCategoryData[category] && !isNaN(index) && productCategoryData[category][index]) {
-                    const item = productCategoryData[category][index];
-                    const count = cartCounts[key];
-    
-                    console.log("Item found:", item, "Count:", count);
-    
-                    if (count > 0) {
-                        cartItems.push({ ...item, count });
-                    }
-                } else {
-                    console.warn(`Skipping key ${key} - category or index not found`);
-                }
-            });
-    
-            console.log("Final cartItems:", cartItems);
-    
-            if (cartItems.length > 0) {
-                await AsyncStorage.setItem("cartData", JSON.stringify(cartItems));
-            }
-    
-            navigation.navigate("ADDTOCART", { cartData: cartItems });
-    
-        } catch (error) {
-            console.error("Error saving cart data:", error);
-        }
+        navigation.navigate("ADDTOCART");
     };
-    
-    
 
+    useEffect(() => {
+        // Set loading to false only when both data and cart are loaded
+        if (categoryKeys.length > 0 && productCategoryData[selectedIndex]?.length > 0 && !isCartLoading) {
+            setIsLoading(false);
+        }
+    }, [categoryKeys, selectedIndex, productCategoryData, isCartLoading]);
+
+    const renderItem = ({ item, index }) => {
+        if (isLoading || isCartLoading) {
+            return <PoojaTypeListItemShimmer />;
+        }
+
+        const uniqueKey = `${selectedIndex}_${index}`;
+        const count = cartCounts[uniqueKey] || 0;
+        return (
+            <PoojaTypeListItem
+                item={item}
+                index={index}
+                category={selectedIndex}
+                count={count}
+                onAddToCart={handleAddToCart}
+                onIncrease={handleIncrease}
+                onDecrease={handleDecrease}
+            />
+        );
+    };
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -218,19 +247,9 @@ const PoojaCategoryScreen = () => {
                 </View>
 
                 <FlatList
-                    data={selectedCategoryData}
+                    data={isLoading ? Array(5).fill({}) : selectedCategoryData}
                     keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item, index }) => (
-                        <PoojaTypeListItem
-                            item={item}
-                            index={index}
-                            category={selectedIndex}
-                            count={cartCounts[`${selectedIndex}_${index}`] || 0}
-                            onAddToCart={handleAddToCart}
-                            onIncrease={handleIncrease}
-                            onDecrease={handleDecrease}
-                        />
-                    )}
+                    renderItem={renderItem}
                     contentContainerStyle={{ padding: 10 }}
                 />
 

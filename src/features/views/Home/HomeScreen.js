@@ -1,13 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList, ImageBackground, Animated, StatusBar, SafeAreaView, ActivityIndicator } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Dimensions, FlatList, ImageBackground, Animated, StatusBar, SafeAreaView, ActivityIndicator, BackHandler } from 'react-native';
 import { ScrollView, Image } from 'react-native';
 import Color from '../../../infrastruture/theme/color';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import axiosInstance from '../../../api/ApiManager';
 import AddAddressSheet from '../Profile/components/AddAddressSheet';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import FastImage from 'react-native-fast-image';
 
 const HomeScreen = () => {
     const { width } = Dimensions.get('window');
@@ -26,8 +27,20 @@ const HomeScreen = () => {
     const [productCategoryResponse, setProductCategoryResponse] = useState([]);
     const [addressBtmSheetVisible, setaddressBtmSheetVisible] = useState(false);
     const [loading, setloading] = useState(true);
+    const [cartItems, setCartItems] = useState(0);
 
     const [selectedAddress, setSelectedAddress] = useState(null);
+
+    const scrollX = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            () => true
+        );
+
+        return () => backHandler.remove(); // Cleanup on unmount
+    }, []);
 
     useEffect(() => {
         const fetchSelectedAddress = async () => {
@@ -40,13 +53,30 @@ const HomeScreen = () => {
                     setSelectedAddress(null);
                 }
             } catch (error) {
-                console.error('Error fetching selected address:', error);
+                console.log('Error fetching selected address:', error);
             }
         };
 
         fetchSelectedAddress();
     }, [addressBtmSheetVisible]);
 
+    useFocusEffect(
+        useCallback(() => {
+            const loadCartData = async () => {
+                try {
+                    const savedCartData = await AsyncStorage.getItem("cartCounts");
+                    if (savedCartData) {
+                        const parsedCartData = JSON.parse(savedCartData);
+                        const totalItemCount = Object.values(parsedCartData).reduce((sum, count) => sum + count, 0);
+                        setCartItems(totalItemCount);
+                    }
+                } catch (error) {
+                    console.log("Error loading cart data:", error);
+                }
+            };
+            loadCartData();
+        }, [])
+    );
 
     const onScroll = (event) => {
         const index = Math.round(event.nativeEvent.contentOffset.x / width);
@@ -74,7 +104,7 @@ const HomeScreen = () => {
             navigation.navigate('PROFILE');
         }
         if (id === 'Orders') {
-            navigation.navigate('MYORDERS');
+            navigation.navigate('ORDERHISTORY');
         }
     };
 
@@ -99,22 +129,25 @@ const HomeScreen = () => {
         require('../../../assets/icons/Home/img1.jpg'),
     ];
 
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         setCurrentIndex((prevIndex) => {
-    //             const nextIndex = prevIndex + 1 < images.length ? prevIndex + 1 : 0;
-    //             flatListRef.current.scrollToIndex({ index: nextIndex, animated: true });
-    //             return nextIndex;
-    //         });
-    //     }, 2000);
+    // Auto-scroll functionality
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (flatListRef.current) {
+                const nextIndex = (currentIndex + 1) % images.length;
+                flatListRef.current.scrollToIndex({
+                    index: nextIndex,
+                    animated: true
+                });
+            }
+        }, 1000); // Changed to 1 second
 
-    //     return () => clearInterval(interval);
-    // }, []);
+        return () => clearInterval(interval);
+    }, [currentIndex]);
 
     const PoojaTypeItemCard = ({ imageSource, text, onPress }) => (
         <TouchableOpacity onPress={onPress} style={{ width: '30%', alignItems: 'center', margin: 10 }} >
-            <View style={{ backgroundColor: Color.primary_blue, borderRadius: 10, padding: 8, justifyContent: 'center', alignItems: 'center', width: '100%', height: 100 }}>
-                <Image source={imageSource} style={{ width: "100%", height: "100%", resizeMode: 'contain' }} />
+            <View style={{ overflow: 'hidden', backgroundColor: Color.primary_blue, borderRadius: 10, justifyContent: 'center', alignItems: 'center', width: '100%', height: 100 }}>
+                <Image source={imageSource} style={{ width: "100%", height: "100%", resizeMode: "stretch", borderRadius: 10 }} />
             </View>
             <Text style={{ textAlign: 'center', fontSize: 10, fontFamily: "Roboto-Bold", flexWrap: 'wrap', color: "black", }} numberOfLines={2} ellipsizeMode="tail">{text}</Text>
         </TouchableOpacity>
@@ -123,8 +156,8 @@ const HomeScreen = () => {
 
     const ItemCard = ({ imageSource, text, onPress }) => (
         <TouchableOpacity onPress={onPress} style={{ width: '30%', alignItems: 'center', margin: 10 }} >
-            <View style={{ backgroundColor: Color.primary_orange, borderRadius: 10, padding: 8, justifyContent: 'center', alignItems: 'center', width: '100%', height: 100 }}>
-                <Image source={imageSource} style={{ width: "100%", height: "100%", resizeMode: 'contain' }} />
+            <View style={{ overflow: "hidden", borderRadius: 10, justifyContent: 'center', alignItems: 'center', width: '100%', height: 100 }}>
+                <Image source={imageSource} style={{ width: "100%", height: "100%", resizeMode: "stretch", borderRadius: 15, borderColor: Color.primary_grey, borderWidth: 1 }} />
             </View>
             <Text style={{ textAlign: 'center', fontSize: 10, fontFamily: "Roboto-Bold", flexWrap: 'wrap', color: "black", }} numberOfLines={2} ellipsizeMode="tail">{text}</Text>
         </TouchableOpacity>
@@ -175,7 +208,17 @@ const HomeScreen = () => {
         scrollAnim.setValue(0);
     }, [textIndex]);
 
-    const staticImage = require('../../../assets/icons/Home/laxmidevi_pic.png');
+    const noImage = require('../../../assets/icons/static/noimage.png');
+ 
+    const staticPoojaCategory = [
+        require('../../../assets/icons/Home/antim_sansakar_samagri.jpg'),
+        require('../../../assets/icons/PoojaCategory/bartan_samagri.jpg'),
+        require('../../../assets/icons/PoojaCategory/frame_n_murti.jpg'),
+        require('../../../assets/icons/PoojaCategory/gems_n_yantra.jpg'),
+        require('../../../assets/icons/PoojaCategory/hawan_samagri.jpg'),
+        require('../../../assets/icons/PoojaCategory/aasan_samagri.jpg'),
+    ];
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -184,14 +227,14 @@ const HomeScreen = () => {
                 // console.log('hawan_categoryResponse:', response.data);
                 const transformedData = response.data.map((item, index) => ({
                     id: index.toString(),
-                    title: item,
-                    image: staticImage,
+                    title: item.name,
+                    image: item.img_url
+                        ? { uri: `https://firebasestorage.googleapis.com/v0/b/poojasamagri-ee0ae.firebasestorage.app${item.img_url}` }
+                        : noImage,
                 }));
                 setHorizontalData(transformedData);
-                // setloading(false);
             } catch (error) {
                 console.log('Error fetching data:', error.message);
-                // setloading(false);
             }
         };
 
@@ -204,8 +247,10 @@ const HomeScreen = () => {
                 const response = await axiosInstance.get('pooja_category.json');
                 const transformedData = response.data.map((item, index) => ({
                     id: index.toString(),
-                    text: item,
-                    image: staticImage,
+                    text: item.name,
+                    image: item.img_url
+                        ? { uri: `https://firebasestorage.googleapis.com/v0/b/poojasamagri-ee0ae.firebasestorage.app${item.img_url}` }
+                        : noImage,
                 }));
                 setPoojaCategoryData(transformedData);
                 // setloading(false);
@@ -229,7 +274,7 @@ const HomeScreen = () => {
                 const transformedData = Object.keys(response.data).map((key, index) => ({
                     id: index.toString(),
                     text: key.replace(/_/g, ' '),
-                    image: staticImage,
+                    image: staticPoojaCategory[index] || staticPoojaCategory[0],
                 }));
                 setProductCategoryData(transformedData);
                 // setloading(false);
@@ -242,6 +287,9 @@ const HomeScreen = () => {
         fetchData();
     }, []);
 
+    const antimCardClick = (productCategoryData) => {
+        navigation.navigate('ANTIMSANSKAR', { categoryData: productCategoryResponse });
+    };
 
     const numColumns = 2;
 
@@ -252,8 +300,36 @@ const HomeScreen = () => {
         const isSelected = selectedId === item.id;
         return (
             <TouchableOpacity onPress={() => setSelectedId(item.id)} style={{ marginHorizontal: 10, alignItems: 'center', }}>
-                <View style={{ width: itemWidth2, height: itemWidth2, backgroundColor: isSelected ? Color.primary_blue : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 8, borderWidth: isSelected ? 1 : 0, borderColor: isSelected ? 'white' : 'transparent', }}>
-                    <Image source={item.image} style={{ width: '80%', height: '80%', resizeMode: 'contain' }} />
+                <View style={{ 
+                    width: itemWidth2, 
+                    height: itemWidth2, 
+                    backgroundColor: isSelected ? Color.primary_blue : 'white', 
+                    justifyContent: "center", 
+                    alignItems: 'center', 
+                    borderRadius: 10,
+                    borderWidth: isSelected ? 1 : 0, 
+                    borderColor: isSelected ? 'white' : 'transparent',
+                    overflow: 'hidden'
+                }}>
+                    <FastImage
+                        source={item.image}
+                        style={{ 
+                            width: '100%', 
+                            height: '100%', 
+                            resizeMode: "cover",
+                            borderRadius: 10
+                        }}
+                        priority={FastImage.priority.high}
+                        resizeMode={FastImage.resizeMode.cover}
+                        cache={FastImage.cacheControl.immutable}
+                        placeholder={noImage}
+                        onLoadStart={() => {
+                            // You can add loading state here if needed
+                        }}
+                        onLoadEnd={() => {
+                            // You can handle load completion here if needed
+                        }}
+                    />
                 </View>
                 <Text style={{ marginTop: 5, fontSize: 10, fontFamily: "Roboto-Medium", color: "white", textAlign: 'center', flexWrap: 'wrap', width: itemWidth2 }} numberOfLines={2}>
                     {item.title}
@@ -265,6 +341,121 @@ const HomeScreen = () => {
         );
     };
 
+    const renderFlatListItem = ({ item, index }) => {
+        const inputRange = [
+            (index - 1) * width,
+            index * width,
+            (index + 1) * width,
+        ];
+
+        const scale = scrollX.interpolate({
+            inputRange,
+            outputRange: [0.8, 1, 0.8],
+        });
+
+        const opacity = scrollX.interpolate({
+            inputRange,
+            outputRange: [0.5, 1, 0.5],
+        });
+
+        return (
+            <Animated.View
+                style={{
+                    width,
+                    transform: [{ scale }],
+                    opacity,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <TouchableOpacity
+                    onPress={() => {
+                        if (index === 0) {
+                            navigation.navigate('ANTIMSANSKAR', { categoryData: productCategoryResponse });
+                        } else if (index === 1) {
+                            navigation.navigate('POOJACATEGORY', {
+                                selectedCategory: 'bartan_samagri',
+                                categoryData: productCategoryResponse,
+                                screenName: "Bartan Samagri"
+                            });
+                        } else {
+                            navigation.navigate('POOJACATEGORY', {
+                                selectedCategory: null,
+                                categoryData: productCategoryResponse,
+                                screenName: "Select Pooja Category"
+                            });
+                        }
+                    }}
+                    style={{
+                        width: width * 0.9,
+                        height: 200,
+                        backgroundColor: Color.white,
+                        borderRadius: 15,
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.15,
+                        shadowRadius: 8,
+                        overflow: 'hidden',
+                    }}
+                >
+                    <FastImage
+                        source={item}
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            resizeMode: 'cover',
+                            backgroundColor: Color.white,
+                        }}
+                        priority={FastImage.priority.high}
+                        resizeMode={FastImage.resizeMode.cover}
+                        cache={FastImage.cacheControl.immutable}
+                    />
+                </TouchableOpacity>
+            </Animated.View>
+        );
+    };
+
+    const renderPagination = () => {
+        return (
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 10,
+            }}>
+                {images.map((_, index) => {
+                    const inputRange = [
+                        (index - 1) * width,
+                        index * width,
+                        (index + 1) * width,
+                    ];
+
+                    const dotWidth = scrollX.interpolate({
+                        inputRange,
+                        outputRange: [8, 16, 8],
+                    });
+
+                    const opacity = scrollX.interpolate({
+                        inputRange,
+                        outputRange: [0.3, 1, 0.3],
+                    });
+
+                    return (
+                        <Animated.View
+                            key={index}
+                            style={{
+                                width: dotWidth,
+                                height: 8,
+                                borderRadius: 4,
+                                backgroundColor: Color.primary_orange,
+                                marginHorizontal: 4,
+                                opacity,
+                            }}
+                        />
+                    );
+                })}
+            </View>
+        );
+    };
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
@@ -319,7 +510,15 @@ const HomeScreen = () => {
                                         </View>
 
                                         <TouchableOpacity onPress={() => handleAddtoCart()} style={{ marginLeft: 10 }}>
-                                            <Image source={require('../../../assets/icons/Home/cart.png')} style={{ width: 30, height: 30, tintColor: "white" }} />
+                                            <View style={{ position: 'relative' }}>
+                                                <Image source={require('../../../assets/icons/Home/cart.png')} style={{ width: 30, height: 30, tintColor: "white" }} />
+                                                {cartItems > 0 && (
+                                                    <View style={{ position: 'absolute', top: -5, right: -5, backgroundColor: 'red', width: 18, height: 18, borderRadius: 9, justifyContent: 'center', alignItems: 'center', }}>
+                                                        <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>{cartItems}</Text>
+                                                    </View>
+                                                )}
+
+                                            </View>
                                         </TouchableOpacity>
 
                                     </View>
@@ -335,26 +534,35 @@ const HomeScreen = () => {
                                 </View>
 
                                 <View >
-                                    <View style={{ height: 200, width: '100%', margin: 10, padding: 10, }}>
+                                    <View style={{ height: 200, width: '100%', margin: 10,}}>
                                         <FlatList
                                             ref={flatListRef}
                                             data={images}
-                                            style={{ flex: 1, borderRadius: 10, margin: 10, }}
+                                            renderItem={renderFlatListItem}
                                             horizontal
                                             pagingEnabled
-                                            onScroll={onScroll}
                                             showsHorizontalScrollIndicator={false}
-                                            keyExtractor={(_, index) => index.toString()}
-                                            renderItem={({ item }) => (
-                                                <Image source={item} style={{ height: '100%', width: width, resizeMode: 'stretch' }} />
+                                            onScroll={Animated.event(
+                                                [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                                                { useNativeDriver: false }
                                             )}
-                                            scrollEnabled={false}
+                                            scrollEventThrottle={10}
+                                            keyExtractor={(_, index) => index.toString()}
+                                            decelerationRate="fast"
+                                            snapToInterval={width}
+                                            snapToAlignment="center"
+                                            contentContainerStyle={{ paddingRight: 10 }}
+                                            getItemLayout={(data, index) => ({
+                                                length: width,
+                                                offset: width * index,
+                                                index,
+                                            })}
+                                            onMomentumScrollEnd={(event) => {
+                                                const newIndex = Math.round(event.nativeEvent.contentOffset.x / width);
+                                                setCurrentIndex(newIndex);
+                                            }}
                                         />
-                                    </View>
-                                    <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: -15, marginBottom: 10 }}>
-                                        {images.map((_, index) => (
-                                            <View key={index} style={[{ width: 5, height: 5, borderRadius: 5, marginHorizontal: 5, }, currentIndex === index ? { backgroundColor: "white" } : { backgroundColor: 'gray' },]} />
-                                        ))}
+                                        {renderPagination()}
                                     </View>
                                 </View>
 
@@ -370,6 +578,12 @@ const HomeScreen = () => {
                                     />
                                 </View>
 
+                                <TouchableOpacity onPress={() => { antimCardClick(productCategoryData) }} style={{ flexDirection: 'row', alignItems: 'center', padding: 5, backgroundColor: 'white', borderRadius: 10, marginStart: 15, marginBottom: 15, marginEnd: 15, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 }}>
+                                    <Image source={require('../../../assets/icons/Home/antim_sansakar_samagri.jpg')} style={{ width: 40, height: 40, borderRadius: 20 }} />
+                                    <Text style={{ flex: 1, textAlign: 'center', fontSize: 16, fontFamily: "Roboto-Medium", color: 'black' }}>Antim Sanskar Samagri</Text>
+                                    <Image source={require('../../../assets/icons/Profile/Forward.png')} style={{ width: 30, height: 30 }} />
+                                </TouchableOpacity>
+
                             </View>
 
                             {/* </ImageBackground> */}
@@ -381,7 +595,7 @@ const HomeScreen = () => {
                                 <View style={{ flex: 1, backgroundColor: "white", alignItems: 'center', borderBottomRightRadius: 50, borderBottomLeftRadius: 50, shadowColor: "#d9d9d9", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 5, elevation: 8, }}>
 
                                     <View style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 5, marginStart: 10, marginEnd: 10, marginTop: 5, padding: 10 }}>
-                                        <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, marginRight: 4, flex: 1, }}>Explore Pooja Types</Text>
+                                        <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, marginRight: 4, flex: 1, }}>Explore Pooja Categories</Text>
                                         <TouchableOpacity onPress={() => handleAllPoojaTypes()} style={{ flexDirection: "row", alignItems: "center", }}>
                                             <Text style={{ color: "darkblue", fontFamily: 'Roboto-Bold', fontSize: 16, }}>view all</Text>
                                             <Image source={require('../../../assets/icons/Home/arrow.png')} resizeMode='contain' style={{ width: 22, height: 22, tintColor: "darkblue", transform: [{ rotate: '270deg' }] }} />
@@ -413,9 +627,10 @@ const HomeScreen = () => {
                                 </View>
                                 {/* </ImageBackground> */}
 
-                                <View style={{ flex: 1, alignItems: 'center', borderBottomRightRadius: 50, borderBottomLeftRadius: 50, marginBottom: 20, backgroundColor: "white" }}>
+                                <View style={{ flex: 1, alignItems: 'center', borderBottomRightRadius: 50, borderBottomLeftRadius: 50, marginBottom: 20, backgroundColor: Color.primary_orange }}>
+
                                     <View style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 5, marginStart: 10, marginEnd: 10, padding: 10 }}>
-                                        <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, marginRight: 4, flex: 1, }}> Explore Pooja Categories  </Text>
+                                        <Text style={{ color: Color.primary_black, fontFamily: 'Roboto-Bold', fontSize: 16, marginRight: 4, flex: 1, }}> Explore Pooja Items</Text>
                                         <TouchableOpacity onPress={() => handleAllPoojaCategories()} style={{ flexDirection: "row", alignItems: "center", }}>
                                             <Text style={{ color: "darkorange", fontFamily: 'Roboto-Bold', fontSize: 16, }}>view all</Text>
                                             <Image source={require('../../../assets/icons/Home/arrow.png')} resizeMode='contain' style={{ width: 22, height: 22, tintColor: "darkorange", transform: [{ rotate: '270deg' }] }} />
@@ -423,7 +638,7 @@ const HomeScreen = () => {
                                     </View>
 
                                     <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, }}>
-                                        {productCategoryData.slice(0, 3).map((item, index) => (
+                                        {productCategoryData.slice(1, 4).map((item, index) => (
                                             <ItemCard
                                                 key={index}
                                                 imageSource={item.image}
@@ -434,7 +649,7 @@ const HomeScreen = () => {
                                     </View>
 
                                     <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginStart: 15, marginEnd: 15, marginBottom: 10, }}>
-                                        {productCategoryData.slice(3, 6).map((item, index) => (
+                                        {productCategoryData.slice(4, 7).map((item, index) => (
                                             <ItemCard
                                                 key={index + 3}
                                                 imageSource={item.image}
